@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Educator-specific CSS -->
+    <link th:href="@{/resources/css/Educator/CourseManagement.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Side Navigation Structure -->
+            <div class="toggler-area">
+                <button class="menu-toggle" id="mainSidenavToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>            
+            
+            <!-- Sidebar -->
+            <div class="main-sidenav" id="mainSidenav">
+                <div class="d-flex flex-column h-100">
+                    <!-- Header -->
+                    <div class="py-4 text-center">
+                        <h3 class="mb-4">
+                            <i class="fas fa-graduation-cap me-2"></i>Assessment Ally
+                        </h3>
+                    </div>
+                    
+                    <!-- Navigation Menu -->
+                    <div class="flex-grow-1">
+                        <ul class="nav flex-column">
+                            <!-- Dashboard -->
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Educator/Dashboard}">
+                                    <i class="fas fa-home me-2"></i>Dashboard
+                                </a>
+                            </li>
+            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white active" th:href="@{/Educator/CourseManagement}" id="assessmentManagement"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-book-open icon me-2"></i>Course Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="assessmentManagement">
+                                    <li><a class="dropdown-item text-white" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                                        <i class="fas fa-plus-circle me-2"></i>Create Course
+                                    </a></li>
+                                    <li>
+                                        <a class="dropdown-item text-white"
+                                        th:href="@{/Educator/CourseManagement} + '#course-catalog'">
+                                            <i class="fas fa-list me-2"></i>Manage Courses
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+            
+                            <!-- Results & Analytics -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="resultsAnalytics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-2"></i>Student Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="resultsAnalytics">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#manageStudents'">
+                                        <i class="fas fa-table me-2"></i>Manage Students
+                                    </a></li>
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#StudentsPerformance'">
+                                        <i class="fas fa-chart-pie me-2"></i>Performance Analytics
+                                    </a></li>
+                                </ul>
+                            </li>
+                            
+                            <!-- My Classes -->
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Educator/MyClasses}">
+                                    <i class="fas fa-users me-2"></i>My Classes
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Profile Section -->
+                    <div class="mt-auto py-3 border-top border-secondary">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" id="userProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>
+    					<strong th:text="${userInfo != null ? userInfo.userFirstName + ' ' + userInfo.userLastName : ''}"></strong>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="userProfile">
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Profile</a>
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Account Settings</a>
+                                <a class="dropdown-item" th:href="@{/Educator/Logout}">Sign out</a>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backdrop for mobile -->
+            <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 bg-light main-content" id="main-content">
+                <div class="container-fluid py-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!--  <p th:text="'Your role is: ' + ${session.role}"></p>-->
+                    
+                        <div>
+                            <h1 class="h2 text-dark fw-bold">Course Management</h1>
+                            <p class="text-muted">Manage and track your courses effectively</p>
+                        </div>
+                        <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                            <i class="fas fa-plus-circle me-2"></i>Create New Course
+                        </button>                        
+                    </div>
+
+                    <!-- Top Stats -->
+                    <div class="row mb-4">
+                        <div class="row mb-4">
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="card dashboard-card stat-card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-column">
+                                            <h5 class="card-title text-muted text-uppercase small">Total Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="totalCourses">24</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+5% this month</span>
+                                        </div>
+                                        <i class="fas fa-book-open icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Enrolled Students</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="enrolledStudents">12</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+12% this month</span>
+                                        </div>
+                                        <i class="fas fa-users icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Active Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="activeCourses">18</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+3 this week</span>
+                                        </div>
+                                        <i class="fas fa-clock icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Completed Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="completedCourses">6</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+2 this month</span>
+                                        </div>
+                                        <i class="fas fa-award icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course Catalog -->
+                    <div class="row mt-4" id="course-catalog">
+                        <div class="col-12">
+                            <h2 class="h4 fw-bold text-dark mb-4">Course Catalog</h2>
+                        </div>
+
+                         <!-- Search and Sort Controls -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="input-group">
+                                    <input type="text" id="courseSearchInput" class="form-control" placeholder="Search courses...">
+                                    <button class="btn btn-outline-secondary" type="button" id="courseSearchButton">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-end">
+	                                <!-- Updated Dropdown HTML -->
+									<div class="dropdown">
+									  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+									    Sort by: Default
+									  </button>
+									  <ul class="dropdown-menu" aria-labelledby="sortDropdownButton">
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="default">Default</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="title-asc">Title (A-Z)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="title-desc">Title (Z-A)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="date-asc">End Date (Earliest-Latest)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="date-desc">End Date (Latest-Earliest)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="credits-asc">Credits (Low-High)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="credits-desc">Credits (High-Low)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="id-asc">ID (Low-High)</a></li>
+									    <li><a class="dropdown-item sort-option" href="#" data-sort="id-desc">ID (High-Low)</a></li>
+									  </ul>
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add this script block to pass backend data to JavaScript -->
+						<script th:inline="javascript">
+						    /*<![CDATA[*/
+						    const backendCourses = /*[[${courses}]]*/ [];
+						    /*]]>*/
+						</script>
+
+                        <!-- Course Cards will be dynamically inserted here -->
+                        <div id="courseCatalogContainer" class="row gx-4">
+                            <!-- Dynamic content will be inserted here by JavaScript -->
+                        </div>
+                        
+                        <!-- Active Courses Section -->
+						<div class="row mt-4">
+						    <div class="col-12">
+						        <h2 class="h4 fw-bold text-dark mb-4">Active Courses</h2>
+						    </div>
+						    <!-- Search and Sort Controls (same as before) -->
+						    <div id="activeCoursesContainer" class="row gx-4">
+						        <!-- Active courses will be inserted here -->
+						    </div>
+						</div>
+						
+						<!-- Inactive Courses Section -->
+						<div class="row mt-5">
+						    <div class="col-12">
+						        <h2 class="h4 fw-bold text-dark mb-4">Inactive Courses</h2>
+						    </div>
+						    <div id="inactiveCoursesContainer" class="row gx-4">
+						        <!-- Inactive courses will be inserted here -->
+						    </div>
+						</div>
+                    </div>
+                    
+
+                    <!-- Recent Updates -->
+					<div class="card mt-4" id="recentCard">
+					    <div class="card-header">
+					        <h5 class="card-title fw-bold mb-0">Recent Course Updates</h5>
+					    </div>
+					    <div class="card-body p-0">
+					        <ul class="list-group list-group-flush">
+					            <th:block th:each="course : ${recentCourses}">
+					                <li class="list-group-item d-flex justify-content-between align-items-center p-3"
+					                    th:onclick="'window.location.href=\'/EducatorConfig/TestDashboard?moduleId=' + ${#lists.isEmpty(course.modules) ? 0 : course.modules[0].moduleId} + '\';'"
+					                    style="cursor:pointer;">
+					                    <div>
+					                        <h6 class="my-1" th:text="${course.courseName}">Course Name</h6>
+					                        <small class="text-muted">Recently updated</small>
+					                    </div>
+					                    <span class="badge rounded-pill"
+					                          th:text="${course.updatedAt != null ? T(java.time.LocalDateTime).parse(course.updatedAt).until(T(java.time.LocalDateTime).now(), T(java.time.temporal.ChronoUnit).DAYS) > 0 ? T(java.time.LocalDateTime).parse(course.updatedAt).until(T(java.time.LocalDateTime).now(), T(java.time.temporal.ChronoUnit).DAYS) + ' days ago' : 'Today' : ''}">
+					                        Today
+					                    </span>
+					                </li>
+					            </th:block>
+					        </ul>
+					    </div>
+					</div>
+                </div>
+         <!-- Create Course Modal -->
+				<div class="modal fade" id="createCourseModal" tabindex="-1" aria-labelledby="createCourseModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-lg">
+				        <div class="modal-content">
+				            <div class="modal-header bg-primary text-white">
+				                <h5 class="modal-title" id="createCourseModalLabel">
+				                    <i class="fas fa-plus-circle me-2"></i>Create New Course
+				                </h5>
+				                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+				            </div>
+				            <div class="modal-body">
+				                <form id="createCourseForm">
+				                    <div class="row">
+				                        <div class="col-md-8">
+				                            <div class="mb-3">
+				                                <label for="courseTitle" class="form-label">Course Name *</label>
+				                                <input type="text" class="form-control" id="courseTitle" name="courseName" required>
+				                                <div class="invalid-feedback">Please enter a course name</div>
+				                            </div>
+				                        </div>
+				                        <div class="col-md-4">
+				                            <div class="mb-3">
+				                                <label for="courseCredits" class="form-label">Credits *</label>
+				                                <select class="form-select" id="courseCredits" name="courseCredits" required>
+				                                    <option value="1">1 Credit</option>
+				                                    <option value="2">2 Credits</option>
+				                                    <option value="3" selected>3 Credits</option>
+				                                    <option value="4">4 Credits</option>
+				                                    <option value="5">5 Credits</option>
+				                                    <option value="6">6 Credits</option>
+				                                </select>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    <div class="row">
+					                    <div class="col-md-10">
+						                    <div class="mb-3">
+						                        <label for="courseDescription" class="form-label">Description</label>
+						                        <textarea class="form-control" id="courseDescription" name="courseDescription" rows="3" maxlength="100" oninput="updateCount()"></textarea>
+						                                    <small id="charCount">100 characters remaining</small>
+						                    </div>
+						                </div>
+				                    </div>
+				
+				                    <div class="row">
+									    <div class="col-md-6">
+									        <div class="mb-3">
+									            <label for="courseStartDate" class="form-label">Start Date *</label>
+									            <input type="datetime-local" class="form-control" id="courseStartDate" name="courseStartDate" required>
+									            <div class="invalid-feedback">Please select a valid start date</div>
+									        </div>
+									    </div>
+									    <div class="col-md-6">
+									        <div class="mb-3">
+									            <label for="courseEndDate" class="form-label">End Date *</label>
+									            <input type="datetime-local" class="form-control" id="courseEndDate" name="courseEndDate" required>
+									            <div class="invalid-feedback">Please select a valid end date</div>
+									        </div>
+									    </div>
+									</div>
+									
+									<!-- Custom date error display -->
+									<div class="row">
+									    <div class="col-md-12">
+									        <span id="dateError" class="text-danger small fw-semibold ps-1"></span>
+									    </div>
+									</div>
+
+				
+				                    <div class="row">
+				                        <div class="col-md-6">
+				                            <div class="mb-3">
+				                                <label for="courseStatus" class="form-label">Status *</label>
+				                                <select class="form-select" id="courseStatus" name="courseStatus" required>
+				                                    <option value="active" selected>Active</option>
+				                                    <option value="inactive">Inactive</option>
+				                                </select>
+				                            </div>
+				                        </div>
+				                        <div class="col-md-6">
+				                            <div class="mb-3">
+				                                <label class="form-label">Instructor</label>
+				                                <input type="text" class="form-control" value="You" readonly>
+				                                <small class="text-muted">(Your user ID will be automatically assigned)</small>
+				                            </div>
+				                        </div>
+				                    </div>
+				
+				                    <div class="mb-3">
+				                        <div class="form-check">
+				                            <input class="form-check-input" type="checkbox" id="confirmCreation">
+				                            <label class="form-check-label" for="confirmCreation">
+				                                I confirm all information is correct
+				                            </label>
+				                        </div>
+				                    </div>
+				                </form>
+				            </div>
+				            <div class="modal-footer">
+				                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+				                    <i class="fas fa-times me-1"></i> Cancel
+				                </button>
+				                <button type="button" class="btn btn-primary" id="createCourseBtn" disabled>
+				                    <i class="fas fa-save me-1"></i> Create Course
+				                </button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+
+
+			<!-- Update Course Modal -->
+			<div class="modal fade" id="updateCourseModal" tabindex="-1" aria-labelledby="updateCourseModalLabel" aria-hidden="true">
+			    <div class="modal-dialog modal-lg">
+			        <div class="modal-content">
+			            <div class="modal-header bg-success text-white">
+			                <h5 class="modal-title" id="updateCourseModalLabel">
+			                    <i class="fas fa-edit me-2"></i>Update Course
+			                </h5>
+			                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			            </div>
+			            <div class="modal-body">
+			                <form id="updateCourseForm">
+			                    <input type="hidden" id="editCourseId">
+			                    <div class="row">
+			                        <div class="col-md-8">
+			                            <div class="mb-3">
+			                                <label for="editCourseTitle" class="form-label">Course Name *</label>
+			                                <input type="text" class="form-control" id="editCourseTitle" name="courseName" required>
+			                                <div class="invalid-feedback">Please enter a course name</div>
+			                            </div>
+			                        </div>
+			                        <div class="col-md-4">
+			                            <div class="mb-3">
+			                                <label for="editCourseCredits" class="form-label">Credits *</label>
+			                                <select class="form-select" id="editCourseCredits" name="courseCredits" required>
+			                                    <option value="1">1 Credit</option>
+			                                    <option value="2">2 Credits</option>
+			                                    <option value="3">3 Credits</option>
+			                                    <option value="4">4 Credits</option>
+			                                    <option value="5">5 Credits</option>
+			                                    <option value="6">6 Credits</option>
+			                                </select>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    
+			                    <div class="row">
+					                    <div class="col-md-10">
+						                    <div class="mb-3">
+						                        <label for="editCourseDescription" class="form-label">Description</label>
+						                        <textarea class="form-control" id="editCourseDescription" name="courseDescription" rows="3" maxlength="100" oninput="updateEditCount()"></textarea>
+						                    	<small id="charCount">100 characters remaining</small>
+						                        
+						                    </div>
+						                </div>
+				                    </div>
+			
+			                    <div class="row">
+			                        <div class="col-md-6">
+			                            <div class="mb-3">
+			                                <label for="editCourseStartDate" class="form-label">Start Date *</label>
+			                                <input type="datetime-local" class="form-control" id="editCourseStartDate" name="courseStartDate" required>
+			                                <div class="invalid-feedback">Please select a start date</div>
+			                            </div>
+			                        </div>
+			                        <div class="col-md-6">
+			                            <div class="mb-3">
+			                                <label for="editCourseEndDate" class="form-label">End Date *</label>
+			                                <input type="datetime-local" class="form-control" id="editCourseEndDate" name="courseEndDate" required>
+			                                <div class="invalid-feedback">Please select an end date</div>
+			                            </div>
+			                        </div>
+			                    </div>
+			                    
+			                    <div class="row">
+								    <div class="col-12">
+								        <span id="editDateError" class="text-danger small fw-semibold ps-1"></span>
+								    </div>
+								</div>     
+			
+			                    <div class="row">
+			                        <div class="col-md-6">
+			                            <div class="mb-3">
+			                                <label for="editCourseStatus" class="form-label">Status *</label>
+			                                <select class="form-select" id="editCourseStatus" name="courseStatus" required>
+			                                    <option value="active">Active</option>
+			                                    <option value="inactive">Inactive</option>
+			                                </select>
+			                            </div>
+			                        </div>
+			                        <div class="col-md-6">
+			                            <div class="mb-3">
+			                                <label class="form-label">Instructor</label>
+			                                <input type="text" class="form-control" id="editCourseInstructor" value="You" readonly>
+			                                <small class="text-muted">(Original instructor will be maintained)</small>
+			                            </div>
+			                        </div>
+			                    </div>
+			
+			                    <div class="mb-3">
+			                        <div class="form-check">
+			                            <input class="form-check-input" type="checkbox" id="confirmUpdate">
+			                            <label class="form-check-label" for="confirmUpdate">
+			                                I confirm all information is correct
+			                            </label>
+			                        </div>
+			                    </div>
+			                </form>
+			            </div>
+			            <div class="modal-footer">
+			                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+			                    <i class="fas fa-times me-1"></i> Cancel
+			                </button>
+			                <button type="button" class="btn btn-success" id="updateCourseBtn" disabled>
+			                    <i class="fas fa-save me-1"></i> Update Course
+			                </button>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+			
+			            <!-- Inactivate Course Confirmation Modal -->
+			<div class="modal fade" id="inactivateCourseModal" tabindex="-1" aria-labelledby="inactivateCourseModalLabel" aria-hidden="true">
+			    <div class="modal-dialog modal-dialog-centered">
+			        <div class="modal-content">
+			            <div class="modal-header bg-danger text-white">
+			                <h5 class="modal-title" id="inactivateCourseModalLabel">
+			                    <i class="fas fa-exclamation-triangle me-2"></i> Delete Course
+			                </h5>
+			                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			            </div>
+			            <div class="modal-body text-center">
+			                <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+			                <p class="mb-1">Are you sure you want to delete this course?</p>
+			                <p class="text-muted small">This action cannot be undone. The course will be marked as inactive.</p>
+			                <div class="course-info mt-3 p-3 border rounded bg-light text-start">
+			                    <h6 id="deleteCourseTitle" class="mb-2"></h6>
+			                    <div class="small text-muted">
+			                        <div id="deleteCourseDetails"></div>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="modal-footer">
+			                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+			                    <i class="fas fa-times me-1"></i> Cancel
+			                </button>
+			                <button type="button" class="btn btn-danger" id="confirmDelete">
+			                    <i class="fas fa-trash-alt me-1"></i> Yes, Delete Course
+			                </button>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+
+            <!-- Toast Notification -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="polite" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check-circle me-2"></i><span id="toastMessage">Success message</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+  </div>
+    
+    <!-- JavaScript Includes -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <!-- Educator-specific JavaScript -->
+    <script th:src="@{/resources/js/Educator/CourseManagement.js}"></script>
+</body>
+</html>

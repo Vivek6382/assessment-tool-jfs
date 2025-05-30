@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${assessment != null ? assessment.assessmentTitle + ' - Assessment' : 'Assessment Questions'}">Assessment Questions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/resources/css/Student/questions.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                Assessment Ally
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="timer me-3" id="mainTimer">
+                    <i class="fas fa-clock"></i> Time left: <span id="timerValue" th:text="${assessment != null ? assessment.assessmentDurationMinutes + ':00' : '45:00'}">45:00</span>
+                </div>
+                <button id="finishTest" class="btn btn-danger">
+                    <i class="fas fa-flag me-1"></i> Finish Test
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            <div class="test-progress card mb-4">
+                <div class="card-header py-3">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Test Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="test-progress-info">
+                        <span id="assessmentTitle" th:text="${assessment != null ? assessment.assessmentTitle : 'Assessment'}">Assessment</span>
+                        <span id="progressInfo">0 of 0 questions answered</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-success"><i class="fas fa-check-circle me-1"></i> <span id="answeredCount">0</span> Answered</small>
+                        <small class="text-warning"><i class="fas fa-bookmark me-1"></i> <span id="markedCount">0</span> Marked</small>
+                        <small class="text-danger"><i class="fas fa-times-circle me-1"></i> <span id="skippedCount">0</span> Skipped</small>
+                        <small class="text-secondary"><i class="fas fa-question-circle me-1"></i> <span id="remainingCount">0</span> Remaining</small>
+                    </div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="status-indicator status-answered"></span> Answered
+                        </div>
+                        <div class="legend-item">
+                            <span class="status-indicator status-marked"></span> Marked for Review
+                        </div>
+                        <div class="legend-item">
+                            <span class="status-indicator status-unanswered"></span> Not Visited
+                        </div>
+                        <div class="legend-item">
+                            <span class="status-indicator status-skipped"></span> Skipped
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Sidebar with question navigation -->
+                <div class="col-md-3 mb-4">
+                    <div class="question-sidebar">
+                        <div class="sidebar-header">
+                            <i class="fas fa-list-ol me-2"></i>Questions
+                        </div>
+                        <div class="question-grid" id="questionGrid">
+                            <!-- Questions will be dynamically inserted here -->
+                            <div th:each="question, qStat : ${questions}" 
+                                 th:class="'question-number-btn' + (${qStat.first} ? ' active' : '')" 
+                                 th:attr="data-question-id=${question.questionId}" 
+                                 th:onclick="'navigateToQuestion(' + ${question.questionId} + ')'">
+                                <span th:text="${qStat.count}">1</span>
+                                <span class="mark-indicator"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main content area -->
+                <div class="col-md-9">
+                    <!-- Form to submit all answers -->
+                    <form id="assessmentForm" th:action="@{/Student/SubmitAssessment/__${assessment != null ? assessment.assessmentId : '0'}__}" method="post">
+                        <input type="hidden" name="userId" th:value="${userId}" />
+                        <input type="hidden" name="assessmentId" th:value="${assessment != null ? assessment.assessmentId : '0'}" />
+                        
+                        <div class="question-area" id="questionArea">
+                            <!-- Question containers will be dynamically inserted here -->
+                            <div th:each="question, qStat : ${questions}" th:id="'question-' + ${question.questionId}" 
+                                 class="question-container" th:classappend="${qStat.first} ? 'active-question' : ''">
+                                
+                                <div class="question-title">
+                                    <h4>
+                                        <span th:text="${qStat.count}">1</span>. 
+                                        <span th:text="${question.questionText}">Question text here</span>
+                                    </h4>
+                                    <div>
+                                        <span class="max-score">
+                                            <i class="fas fa-star me-1"></i> 
+                                            <span th:text="${question.questionMarks} + ' points'">5 points</span>
+                                        </span>
+                                        <span class="question-type-badge" th:text="${question.questionType}">Multiple Choice</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="question-instruction" th:if="${question.questionType == 'Single Choice' || question.questionType == 'True/False'}">
+                                    <i class="fas fa-info-circle me-2"></i> Select one answer only.
+                                </div>
+                                
+                                <div class="question-instruction" th:if="${question.questionType == 'Multiple Choice'}">
+                                    <i class="fas fa-info-circle me-2"></i> Select all answers that apply.
+                                </div>
+                                
+                                <div class="question-instruction" th:if="${question.questionType == 'Short Answer' || question.questionType == 'Essay'}">
+                                    <i class="fas fa-info-circle me-2"></i> Enter your answer in the text box below.
+                                </div>
+                                
+                                <!-- Single Choice and True/False questions -->
+                                <div th:if="${question.questionType == 'Single Choice' || question.questionType == 'True/False'}" class="options-container">
+                                    <div th:each="option : ${question.options}" class="form-check option-item">
+                                        <input class="form-check-input" type="radio" 
+                                               th:name="'question_' + ${question.questionId}" 
+                                               th:id="'option_' + ${option.optionId}" 
+                                               th:value="${option.optionId}">
+                                        <label class="form-check-label" th:for="'option_' + ${option.optionId}" th:text="${option.optionText}">
+                                            Option text here
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Multiple Choice questions -->
+                                <div th:if="${question.questionType == 'Multiple Choice'}" class="options-container">
+                                    <div th:each="option : ${question.options}" class="form-check option-item">
+                                        <input class="form-check-input" type="checkbox" 
+                                               th:name="'question_' + ${question.questionId}" 
+                                               th:id="'option_' + ${option.optionId}" 
+                                               th:value="${option.optionId}">
+                                        <label class="form-check-label" th:for="'option_' + ${option.optionId}" th:text="${option.optionText}">
+                                            Option text here
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Short Answer questions -->
+                                <div th:if="${question.questionType == 'Short Answer'}" class="text-answer-container">
+                                    <textarea class="form-control" 
+                                              th:name="'question_' + ${question.questionId} + '_text'" 
+                                              rows="3" 
+                                              placeholder="Enter your answer here..."
+                                              maxlength="500"></textarea>
+                                    <div class="char-count">0/500 characters</div>
+                                </div>
+                                
+                                <!-- Essay questions -->
+                                <div th:if="${question.questionType == 'Essay'}" class="text-answer-container">
+                                    <textarea class="form-control" 
+                                              th:name="'question_' + ${question.questionId} + '_text'" 
+                                              rows="8" 
+                                              placeholder="Enter your essay here..."
+                                              maxlength="2000"></textarea>
+                                    <div class="char-count">0/2000 characters</div>
+                                </div>
+                                
+                                <div class="question-actions">
+                                    <button type="button" class="mark-review-btn" th:data-question-id="${question.questionId}">
+                                        <i class="fas fa-bookmark me-1"></i> Mark for Review
+                                    </button>
+                                    <button type="button" class="clear-btn" th:data-question-id="${question.questionId}">
+                                        <i class="fas fa-eraser me-1"></i> Clear Answer
+                                    </button>
+                                </div>
+                                
+                                <div class="nav-buttons">
+                                    <button type="button" class="btn btn-outline-secondary prev-btn" th:if="${!qStat.first}"
+                                            th:attr="data-question-id=${questions[qStat.index - 1].questionId}">
+                                        <i class="fas fa-arrow-left me-2"></i> Previous Question
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            th:if="${qStat.first}" style="visibility: hidden;"></button>
+                                            
+                                    <button type="button" class="btn btn-primary next-btn" th:if="${!qStat.last}"
+                                            th:attr="data-question-id=${questions[qStat.index + 1].questionId}">
+                                        Next Question <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-success submit-review-btn" th:if="${qStat.last}"
+                                            onclick="showSummary()">
+                                        Review & Submit <i class="fas fa-check-circle ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Summary / Review Screen -->
+                        <div id="summaryContainer" class="question-container">
+                            <div class="card mb-4">
+                                <div class="card-header py-3">
+                                    <h4><i class="fas fa-clipboard-check me-2"></i>Test Review</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p>Please review your answers before submitting:</p>
+                                    
+                                    <div id="summaryList" class="summary-list">
+                                        <!-- Summary items will be dynamically inserted here -->
+                                    </div>
+                                    
+                                    <div class="alert alert-warning mt-4">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Warning:</strong> Once submitted, you will not be able to change your answers.
+                                    </div>
+                                    
+                                    <div class="mt-4 d-flex justify-content-between">
+                                        <button type="button" class="btn btn-secondary" id="continueBtn" onclick="continueTest()">
+                                            <i class="fas fa-edit me-1"></i>Continue Test
+                                        </button>
+                                        <button type="button" class="btn btn-success" id="finalSubmitBtn">
+                                            <i class="fas fa-paper-plane me-1"></i>Submit Test
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay for API Requests -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>Submitting your answers...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Global variables from Thymeleaf
+        const assessmentId = /*[[${assessment != null ? assessment.assessmentId : 0}]]*/ 0;
+        const assessmentDuration = /*[[${assessment != null ? assessment.assessmentDurationMinutes : 45}]]*/ 45;
+        const questions = /*[[${questions}]]*/ [];
+        const userId = /*[[${userId}]]*/ 0;
+        const apiUrl = /*[[@{/}]]*/ '';
+        /*]]>*/
+    </script>
+    <script th:src="@{/resources/js/Student/questions.js}"></script>
+</body>
+</html>

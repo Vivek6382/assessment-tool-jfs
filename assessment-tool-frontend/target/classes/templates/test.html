@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Assessment Tool Frontend</title>
+    <!-- Make sure the path matches your resources configuration in spring-config.xml -->
+    <link rel="stylesheet" th:href="@{/resources/css/styles.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Assessment Tool Frontend</h1>
+
+        <div class="message">
+            <h2>Frontend Message:</h2>
+            <p th:text="${message}">Welcome message will appear here</p>
+        </div>
+
+        <div class="message">
+            <h2>Backend Connection Test:</h2>
+            <div th:if="${backendMessage != null}">
+                <p><strong>ID:</strong> <span th:text="${backendMessage.id}">ID</span></p>
+                <p><strong>Message:</strong> <span th:text="${backendMessage.message}">Message</span></p>
+            </div>
+            <div th:unless="${backendMessage != null}">
+                <p class="error">Not connected to backend</p>
+            </div>
+        </div>
+
+        <div class="message">
+            <h2>All Messages from Backend:</h2>
+            <div th:if="${allMessages != null and not #lists.isEmpty(allMessages)}">
+                <div th:each="msg : ${allMessages}" style="margin-bottom: 10px; padding: 10px; background-color: #f9f9f9;">
+                    <p><strong>ID:</strong> <span th:text="${msg.id}">ID</span></p>
+                    <p><strong>Message:</strong> <span th:text="${msg.message}">Message</span></p>
+                </div>
+            </div>
+            <div th:if="${allMessages == null or #lists.isEmpty(allMessages)}">
+                <p>No messages available</p>
+            </div>
+        </div>
+
+        <button id="refresh-data">Refresh Data</button>
+        
+        <!-- Add a navigation example to show linking works -->
+        <div class="navigation" style="margin-top: 20px;">
+            <h3>Navigation Example:</h3>
+            <a th:href="@{/EducatorConfig/TestConfiguration/BasicSettings}" class="nav-link">
+                Go to Basic Settings
+            </a>
+        </div>
+    </div>
+
+    <script th:src="@{/resources/js/script.js}"></script>
+</body>
+</html>

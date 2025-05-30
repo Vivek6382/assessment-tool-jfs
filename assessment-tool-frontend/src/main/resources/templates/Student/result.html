@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/resources/css/Student/result.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                Assessment Ally
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/Student/Profile}" class="btn btn-outline-primary">
+                    <i class="fas fa-user me-1"></i> Back to Profile
+                </a>
+                <button id="printCertificateBtn" class="btn btn-success ms-2">
+                    <i class="fas fa-certificate me-1"></i> View Certificate
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-container">
+            <div class="card mb-4 result-card">
+                <div class="card-header">
+                    <h4><i class="fas fa-chart-bar me-2"></i>Assessment Results</h4>
+                    <span class="assessment-title" th:text="${assessment != null ? assessment.assessmentTitle : 'Assessment'}">Assessment Title</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div th:class="${result != null && result.resultPercentage >= 80 ? 'score-circle high' : (result != null && result.resultPercentage >= 60 ? 'score-circle medium' : 'score-circle low')}">
+                                <div class="content">
+                                    <div class="percentage" th:text="${result != null ? result.resultPercentage + '%' : '0%'}">0%</div>
+                                    <div class="label">Score</div>
+                                </div>
+                            </div>
+                            
+                            <div class="score-details">
+                                You scored <strong th:text="${result != null ? result.obtainedMarks : '0'}">0</strong> out of <strong th:text="${result != null ? result.totalMarks : '0'}">0</strong> points
+                            </div>
+                            
+                            <div class="completion-info">
+                                <div class="completion-date">
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    <span th:text="${formattedCompletionDate}">May 15, 2025</span>
+                                </div>
+                                <div class="status-badge" th:class="${result != null && result.resultPercentage >= 60 ? 'status-badge pass' : 'status-badge fail'}">
+                                    <span th:text="${result != null && result.resultPercentage >= 60 ? 'PASSED' : 'FAILED'}">PASSED</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="summary-stats">
+                                <div class="stat-card">
+                                    <div class="icon"><i class="fas fa-question-circle"></i></div>
+                                    <div class="title">Total Questions</div>
+                                    <div class="value" th:text="${totalQuestions}">0</div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="icon"><i class="fas fa-check-circle"></i></div>
+                                    <div class="title">Correct Answers</div>
+                                    <div class="value" id="correctAnswers" th:text="${correctAnswers}">0</div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="icon"><i class="fas fa-times-circle"></i></div>
+                                    <div class="title">Incorrect Answers</div>
+                                    <div class="value" id="incorrectAnswers" th:text="${incorrectAnswers}">0</div>
+                                </div>
+                                
+                                <div class="stat-card">
+                                    <div class="icon"><i class="fas fa-trophy"></i></div>
+                                    <div class="title">Percentage</div>
+                                    <div class="value" th:text="${result != null ? result.resultPercentage + '%' : '0%'}">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="questionSummary" class="mt-5">
+                        <h5 class="section-title"><i class="fas fa-list-ul me-2"></i>Question Summary</h5>
+                        <div class="question-list">
+                            <!-- Questions with responses -->
+                            <div th:each="response, rStat : ${questionResponses}" class="question-item" th:classappend="${response.isCorrect ? 'correct' : 'incorrect'}">
+                                <div class="question-header">
+                                    <div class="question-number" th:text="${rStat.count}">1</div>
+                                    <div class="question-text" th:text="${response.questionText}">Question text here</div>
+                                    <div class="question-marks">
+                                        <span th:text="${response.marksObtained + '/' + response.questionMarks}">0/5</span> points
+                                    </div>
+                                </div>
+                                
+                                <div class="question-details">
+                                    <!-- For option-based questions (Single Choice, Multiple Choice, True/False) -->
+                                    <div th:if="${response.questionType == 'Single Choice' || response.questionType == 'Multiple Choice' || response.questionType == 'True/False'}" class="options-list">
+                                        <div th:each="option : ${response.options}" class="option-item" 
+                                             th:classappend="${(option.isCorrect ? 'correct-option' : '') + 
+                                                              (response.selectedOptions != null && response.selectedOptions.contains(option.optionText) ? 
+                                                                 (option.isCorrect ? ' selected-correct' : ' selected-incorrect') : '')}">
+                                            <i th:class="${option.isCorrect ? 'fas fa-check-circle correct-icon' : 
+                                                         (response.selectedOptions != null && response.selectedOptions.contains(option.optionText) && !option.isCorrect ? 
+                                                         'fas fa-times-circle incorrect-icon' : 'far fa-circle')}"></i>
+                                            <span th:text="${option.optionText}">Option text</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- For text-based questions (Short Answer, Essay) -->
+                                    <div th:if="${response.questionType == 'Short Answer' || response.questionType == 'Essay'}" class="text-response">
+                                        <div class="response-label">Your Answer:</div>
+                                        <div class="response-text" th:text="${response.studentResponse != null ? response.studentResponse : 'No answer provided'}">Student's text response</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-actions">
+                        <a th:href="@{/Student/Modules}" class="btn btn-outline-primary">
+                            <i class="fas fa-book me-1"></i> Back to Modules
+                        </a>
+                        <button id="downloadResultsBtn" class="btn btn-success">
+                            <i class="fas fa-download me-1"></i> Download Results
+                        </button>
+                        <a th:href="@{/Student/Profile}" class="btn btn-primary">
+                            <i class="fas fa-home me-1"></i> Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Certificate Section -->
+            <div class="certificate-container" id="certificateContainer" style="display: none;">
+                <button class="close-certificate" id="closeCertificate">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="print-btn" id="printBtn">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                
+                <div class="certificate-content">
+                    <div class="certificate-header">
+                        <div class="cert-logo">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="certificate-title">Certificate of Completion</div>
+                    </div>
+                    
+                    <div class="certificate-body">
+                        <div class="name" th:text="${user != null ? user.userFirstName + ' ' + user.userLastName : 'Student'}">John Doe</div>
+                        <div class="description">
+                            has successfully completed the<br>
+                            <strong th:text="${assessment != null ? assessment.assessmentTitle : 'Assessment'}">Programming Fundamentals Assessment</strong><br>
+                            with a score of <strong th:text="${result != null ? result.resultPercentage + '%' : '0%'}">85%</strong>
+                        </div>
+                        <div class="certificate-seal">
+                            <i class="fas fa-award"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="certificate-footer">
+                        <div class="date" th:text="${formattedCertificateDate}">May 15, 2025</div>
+                        <div class="signature">Assessment Ally</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Global variables from Thymeleaf
+        const resultData = /*[[${result}]]*/ null;
+        const assessmentData = /*[[${assessment}]]*/ null;
+        const questionResponsesData = /*[[${questionResponses}]]*/ [];
+        /*]]>*/
+    </script>
+    <script th:src="@{/resources/js/Student/result.js}"></script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educator Profile Management</title>
+
+    <!-- Bootstrap & Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Profile Management Styles -->
+    <link th:href="@{/resources/css/Educator/ProfileManagement.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="toggler-area">
+        <button class="menu-toggle" id="mainSidenavToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <!-- Main Side Navigation (initially hidden) -->
+    <div class="main-sidenav" id="mainSidenav">
+        <div class="d-flex flex-column h-100">
+            <!-- Header -->
+            <div class="py-4 text-center">
+                <h3 class="mb-4 text-white">
+                    <i class="bi bi-mortarboard-fill me-2"></i>Assessment Ally
+                </h3>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <div class="flex-grow-1">
+                <ul class="nav flex-column">
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/Educator/Dashboard}">
+                            <i class="bi bi-house me-2"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Assessment Management -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" th:href="@{/Educator/CourseManagement}" id="assessmentManagement"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-book-open icon me-2"></i>Course Management
+                        </a>
+                        <ul class="dropdown-menu bg-secondary" aria-labelledby="assessmentManagement">
+                            <li><a class="dropdown-item text-white" th:href="@{/Educator/CourseManagement}">
+                                <i class="fas fa-plus-circle me-2"></i>Create Course
+                            </a></li>
+                            <li>
+                                <a class="dropdown-item text-white"
+                                   th:href="@{/Educator/CourseManagement} + '#course-catalog'">
+                                    <i class="fas fa-list me-2"></i>Manage Courses
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Results & Analytics -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="resultsAnalytics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-2"></i>Student Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="resultsAnalytics">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#manageStudents'">
+                                        <i class="fas fa-table me-2"></i>Manage Students
+                                    </a></li>
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#StudentsPerformance'">
+                                        <i class="fas fa-chart-pie me-2"></i>Performance Analytics
+                                    </a></li>
+                                </ul>
+                            </li>
+                    
+                    <!-- My Classes -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/Educator/MyClasses}">
+                            <i class="bi bi-people me-2"></i>My Classes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Profile Section - positioned at bottom -->
+            <div class="mt-auto py-3 border-top border-secondary">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" id="userProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person me-2"></i>
+    					<strong th:text="${userInfo != null ? userInfo.userFirstName + ' ' + userInfo.userLastName : ''}"></strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="userProfile">
+                        <li><a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Profile</a></li>
+                        <li><a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Account Settings</a></li>
+                        <li><a class="dropdown-item" th:href="@{/Educator/Logout}">Sign out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop for mobile -->
+    <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Mobile menu toggle -->
+                <button class="btn btn-primary p-2" id="sidebarToggle">
+                    <i class="fas fa-th-list"></i>
+                </button>
+
+            <!-- Overlay for mobile -->
+            <div class="overlay" id="overlay"></div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-2 d-lg-block sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-mortarboard-fill me-3"></i>
+                        <h5 class="mb-0">Educator Profile</h5>
+                    </div>
+                </div>
+                <div class="sidebar-item active">
+                    <i class="bi bi-book"></i>
+                    Ongoing Courses
+                </div>
+                <div class="sidebar-item">
+                    <i class="bi bi-graph-up"></i>
+                    Performance
+                </div>
+                <div class="sidebar-item">
+                    <i class="bi bi-person"></i>
+                    Profile
+                </div>
+                <div class="sidebar-item">
+                    <i class="bi bi-gear"></i>
+                    Settings
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-lg-10 ms-sm-auto px-md-4 p-4">
+                <!-- Ongoing Courses Section -->
+				<section id="ongoingCourses">
+				    <h2 class="section-title mt-3">Educator's Ongoing Courses</h2>
+				    
+				    <!-- Controls Row -->
+				    <!-- Search and Sort Controls -->
+<!-- Search and Sort Controls -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form id="searchForm" th:action="@{/Educator/ProfileManagement}" method="get">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" name="search" 
+                       th:value="${currentSearch}" placeholder="Search active courses...">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                    id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort by: 
+                <span th:text="${currentSort == 'title' ? 'Title' : 
+                               currentSort == 'date' ? 'Date' : 
+                               currentSort == 'credits' ? 'Credits' : 'ID'}"></span>
+                (<span th:text="${currentDirection == 'asc' ? 'A-Z' : 'Z-A'}"></span>)
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="title" data-direction="asc" href="#">
+                    Title (A-Z)
+                </a></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="title" data-direction="desc" href="#">
+                    Title (Z-A)
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="date" data-direction="asc" href="#">
+                    Date (Oldest first)
+                </a></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="date" data-direction="desc" href="#">
+                    Date (Newest first)
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="credits" data-direction="asc" href="#">
+                    Credits (Low to High)
+                </a></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="credits" data-direction="desc" href="#">
+                    Credits (High to Low)
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="id" data-direction="asc" href="#">
+                    ID (Low to High)
+                </a></li>
+                <li><a class="dropdown-item sort-option" 
+                       data-sort="id" data-direction="desc" href="#">
+                    ID (High to Low)
+                </a></li>
+            </ul>
+        </div>
+        <a id="resetButton" href="#" class="btn btn-outline-danger ms-2">
+            Reset
+        </a>
+    </div>
+</div>
+
+<!-- Courses Display -->
+<div class="row" id="ongoingCoursesContainer">
+    <!-- Courses will be dynamically inserted here by JavaScript -->
+    
+    <!-- Empty state (will be shown by JavaScript if needed) -->
+    <div th:if="${ongoingCourses.empty}" class="col-12 text-center py-5">
+        <i class="fas fa-book fa-3x mb-3 text-muted"></i>
+        <h4 th:text="${currentSearch != null} ? 'No active courses match your search' : 'No active courses'"></h4>
+        <p class="text-muted" th:if="${currentSearch != null}">Try adjusting your search criteria</p>
+    </div>
+</div>
+
+<!-- Make sure the ongoingCourses variable is accessible -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Injecting the Thymeleaf variables into JavaScript
+window.ongoingCourses = /*[[${ongoingCourses}]]*/ [];
+    window.allCourses = /*[[${allCourses}]]*/ [];
+
+    window.statusCounts = {};
+    window.allCourses.forEach(course => {
+        window.statusCounts[course.courseStatus] = (window.statusCounts[course.courseStatus] || 0) + 1;
+    });
+
+    window.modulesPerCourse = window.allCourses.map(course => ({
+        name: course.courseName,
+        modules: (course.modules || []).length
+    }));
+
+    // Log to check what data is actually coming through
+    console.log("Active courses data:", ongoingCourses);
+    console.log("All courses data:", allCourses);
+    /*]]>*/
+</script>
+
+				</section>
+
+                <!-- Performance Analysis Section -->
+                <section id="performanceAnalysis" class="mb-5" style="display: none;">
+                    <h2 class="section-title">Performance Analysis</h2>
+                    <div class="performance-metrics">
+					    <!-- Total Courses Metric -->
+					    <div class="metric">
+					        <div class="metric-title">Total Courses</div>
+					        <div class="metric-value" th:text="${allCourses.size()}">0</div>
+					        <div class="small text-muted">All created courses</div>
+					    </div>
+					    
+					    <!-- Active Courses Metric -->
+					    <div class="metric">
+					        <div class="metric-title">Active Courses</div>
+					        <div class="metric-value" th:text="${ongoingCourses.size()}">0</div>
+					        <div class="small text-muted">Currently ongoing</div>
+					    </div>
+					    
+
+<!-- Assessments Metric -->
+<div class="metric">
+    <div class="metric-title">Total Assessments</div>
+    <div class="metric-value"
+         th:text="${#aggregates.sum(allCourses.![assessmentCount])}">0</div>
+    <div class="small text-muted">Tests and quizzes</div>
+</div>
+
+					</div>
+                    
+                  <div class="performance-charts">
+    
+    <!-- Educator Engagement Line Graph -->
+    <div class="chart">
+        <canvas id="educatorEngagementChart" width="400" height="200"></canvas>
+        <div class="chart-title">Educator Engagement Over Time</div>
+    </div>
+    
+    <!-- Overall Performance (Speedometer Style) -->
+    <div class="chart">
+        <canvas id="overallPerformanceChart" width="400" height="400"></canvas>
+                <div class="percentage" id="performancePercentage">0%</div> <!-- Percentage display -->
+        <div class="chart-title">Overall Performance</div>
+    </div>
+    
+    <!-- Modules per Course -->
+    <div class="chart">
+        <canvas id="modulesPerCourseChart" width="400" height="200"></canvas>
+        <div class="chart-title">Modules per Course</div>
+    </div>
+</div>
+
+                    
+                    
+                    <div class="content-card mt-4">
+					    <h3 class="h5 fw-bold mb-3">Recent Courses</h3>
+					    
+					    <div class="list-group">
+					        <div class="list-group-item border-0 py-3" th:each="course : ${recentCourses}">
+					            <div class="d-flex justify-content-between align-items-center">
+					                <div>
+					                    <div class="fw-bold" th:text="${course.courseName}">Course Name</div>
+					                    <div class="text-muted small">
+											<span class="text-muted small">
+											    Updated • <span class="updated-at" th:text="${course.updatedAt}">2025-05-15T09:00:00</span>
+											</span>
+                        					<span class="mx-2">|</span>
+					                        <span th:text="${course.modules != null ? #lists.size(course.modules) : 0} + ' modules'">0 modules</span>
+					                        <span class="mx-2">|</span>
+					                        <span th:text="${course.assessmentCount ?: 0} + ' assessments'"></span>
+					                    </div>
+					                </div>
+					                <span class="badge"
+					                      th:classappend="${course.courseStatus == 'active'} ? 'bg-success' : 'bg-secondary'"
+					                      th:text="${course.courseStatus}">status</span>
+					            </div>
+					        </div>
+					    </div>
+					</div>
+
+                </section>
+
+                <!-- Profile Section -->
+                <section id="profile" class="mb-5" style="display: none;">
+                    <h2 class="section-title">Profile</h2>
+                    
+                    <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">
+                                <i class="bi bi-person me-2"></i>Personal Info
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button" role="tab" aria-controls="courses" aria-selected="false">
+                                <i class="bi bi-book me-2"></i>Courses
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">
+                                <i class="bi bi-gear me-2"></i>Account Settings
+                            </button>
+                        </li>
+                    </ul>
+                    
+						<div class="tab-content" id="profileTabContent">
+					    <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+					        <div class="content-card">
+					            <form class="profile-form">
+								    <div class="row">
+								        <div class="col-md-6 form-field">
+								            <label for="firstName" class="form-label">First Name</label>
+								            <input type="text" class="form-control" id="firstName" th:value="${userInfo != null ? userInfo.userFirstName : ''}" placeholder="Enter first name">
+								        </div>
+								        <div class="col-md-6 form-field">
+								            <label for="lastName" class="form-label">Last Name</label>
+								            <input type="text" class="form-control" id="lastName" th:value="${userInfo != null ? userInfo.userLastName : ''}" placeholder="Enter last name">
+								        </div>
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="email" class="form-label">Email</label>
+								        <input type="email" class="form-control" id="email" th:value="${userInfo != null ? userInfo.userEmail : ''}" placeholder="Enter email address" readonly>
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="username" class="form-label">Username</label>
+								        <input type="text" class="form-control" id="username" th:value="${userInfo != null ? userInfo.username : ''}" placeholder="Enter username" readonly>
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="dob" class="form-label">Date of Birth</label>
+								        <input type="date" class="form-control" id="dob" th:value="${userInfo != null ? userInfo.userDob : ''}" readonly>
+								    </div>
+								
+								    <div class="row">
+								        <div class="col-md-6 form-field">
+								            <label for="mobile" class="form-label">Mobile Number</label>
+								            <input type="tel" class="form-control" id="mobile" th:value="${userInfo != null ? userInfo.userMobileNumber : ''}" placeholder="Enter mobile number">
+								        </div>
+								        <div class="col-md-6 form-field">
+								            <label for="status" class="form-label">Status</label>
+								            <select class="form-select" id="status" disabled>
+								                <option value="active" th:selected="${userInfo != null && userInfo.userStatus == 'active'}">Active</option>
+								                <option value="inactive" th:selected="${userInfo != null && userInfo.userStatus == 'inactive'}">Inactive</option>
+								                <option value="onleave" th:selected="${userInfo != null && userInfo.userStatus == 'onleave'}">On Leave</option>
+								            </select>
+								        </div>
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="gender" class="form-label">Gender</label>
+								        <select class="form-select" id="gender">
+								            <option value="male" th:selected="${userInfo != null && userInfo.userGender == 'male'}">Male</option>
+								            <option value="female" th:selected="${userInfo != null && userInfo.userGender == 'female'}">Female</option>
+								            <option value="other" th:selected="${userInfo != null && userInfo.userGender == 'other'}">Other</option>
+								        </select>
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="department" class="form-label">Department</label>
+								        <input type="text" class="form-control" id="department" th:value="${userInfo != null ? userInfo.userDepartment : ''}" placeholder="Enter department">
+								    </div>
+								
+								    <div class="form-field">
+								        <label for="qualification" class="form-label">Highest Qualification</label>
+								        <input type="text" class="form-control" id="qualification" th:value="${userInfo != null ? userInfo.userHighestQualification : ''}" placeholder="Enter qualification">
+								    </div>
+								
+								    <div class="d-grid gap-2 col-md-6 col-lg-4 mx-auto mt-4">
+								        <button class="btn btn-primary py-2" type="button">
+								            <i class="bi bi-pencil-square me-2"></i>Update Profile
+								        </button>
+								    </div>
+								</form>
+
+					        </div>
+					    </div>
+						    
+						    <div class="tab-pane fade" id="courses" role="tabpanel" aria-labelledby="courses-tab">
+						        <h3 class="h5 fw-bold mb-4">Your Courses</h3>
+						    </div>
+						</div>
+                        
+                        <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                            <div class="content-card account-settings-card">
+                                <h3 class="h5 fw-bold mb-4">Account Settings</h3>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-field">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username" th:value="${userInfo.username}" placeholder="Enter username" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-field">
+                                            <label for="accountEmail" class="form-label">Account Email</label>
+                                            <input type="email" class="form-control" id="accountEmail" th:value="${userInfo.userEmail}" placeholder="Enter email address" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-field">
+                                            <label for="timezone" class="form-label">Timezone</label>
+                                            <select class="form-select" id="timezone">
+                                                <option value="est" selected>Eastern Time (ET)</option>
+                                                <option value="cst">Central Time (CT)</option>
+                                                <option value="mst">Mountain Time (MT)</option>
+                                                <option value="pst">Pacific Time (PT)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-field">
+                                            <label for="language" class="form-label">Language</label>
+                                            <select class="form-select" id="language">
+                                                <option value="en" selected>English</option>
+                                                <option value="es">Spanish</option>
+                                                <option value="fr">French</option>
+                                                <option value="de">German</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <h4 class="alert-heading">Change Password</h4>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="form-field">
+                                                <label for="currentPassword" class="form-label">Current Password</label>
+                                                <input type="password" class="form-control" id="currentPassword">
+                                                <button class="btn btn-sm position-absolute end-0 top-50 translate-middle-y text-muted bg-transparent border-0 toggle-password">
+									                <i class="bi bi-eye-slash"></i>
+									            </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-field">
+                                                <label for="newPassword" class="form-label">New Password</label>
+                                                <input type="password" class="form-control" id="newPassword">
+                                                            <small class="text-muted">Password must be at least 8 characters</small>
+                                               
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-field">
+                                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                <input type="password" class="form-control" id="confirmPassword">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button class="btn btn-accent" id="updatePasswordBtn">Update Password</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button class="btn btn-primary me-3">Save Changes</button>
+                                    <button class="btn btn-outline-danger" id="deleteAccountBtn">Delete Account</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+ <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script th:src="@{/resources/js/Educator/ProfileManagement.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

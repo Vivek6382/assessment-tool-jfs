@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.userFirstName + ' ' + user.userLastName + ' Profile'}">Student Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{/resources/css/Student/Profile.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="toggler-area">
+        <button class="menu-toggle" id="mainSidenavToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Main Side Navigation -->
+    <div class="main-sidenav" id="mainSidenav">
+        <div class="d-flex flex-column h-100">
+            <div class="py-4 text-center">
+                <h3 class="mb-4 text-white">
+                    <i class="bi bi-mortarboard-fill me-2"></i>Assessment Ally
+                </h3>
+            </div>
+            
+            <div class="flex-grow-1">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/Student/Profile}">
+                            <i class="bi bi-house me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/Student/Modules}">
+                            <i class="bi bi-book me-2"></i>My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">
+                            <i class="bi bi-bar-chart me-2"></i>Grades
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="mt-auto py-3 border-top border-secondary">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" id="userProfile" data-bs-toggle="dropdown">
+                        <div class="profile-avatar">
+                            <span th:text="${#strings.substring(user.userFirstName,0,1) + #strings.substring(user.userLastName,0,1)}">JS</span>
+                        </div>
+                        <strong class="ms-2" th:text="${user.userFirstName + ' ' + user.userLastName}">John Smith</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                        <li><a class="dropdown-item" href="#profile" id="profileLink">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/Student/Logout}">Sign out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <button class="btn btn-primary p-2" id="sidebarToggle">
+                <i class="fas fa-th-list"></i>
+            </button>
+
+            <div class="col-lg-3 d-lg-block sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-mortarboard-fill me-3"></i>
+                        <h5 class="mb-0">Student Profile</h5>
+                    </div>
+                </div>
+                <div class="sidebar-item active" data-section="dashboard">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </div>
+                <div class="sidebar-item" data-section="academicProgress">
+                    <i class="bi bi-graph-up"></i>
+                    Academic Progress
+                </div>
+                <div class="sidebar-item" data-section="profile">
+                    <i class="bi bi-person"></i>
+                    My Profile
+                </div>
+            </div>
+
+            <main class="col-lg-9 ms-sm-auto px-md-4 p-4">
+                <!-- Dashboard Section -->
+                <section id="dashboard">
+                    <h2 class="section-title mt-3">My Learning Dashboard</h2>
+                    
+                    <div class="row mt-4">
+                        <!-- Dynamic Stats Cards -->
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="text-muted mb-1">Completed Assessments</p>
+                                            <h3 class="mb-0" th:text="${results != null ? results.size() : 0}">0</h3>
+                                        </div>
+                                        <div class="icon-bg bg-primary">
+                                            <i class="bi bi-journal-check"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="text-muted mb-1">Enrolled Courses</p>
+                                            <h3 class="mb-0" th:text="${courses != null ? courses.size() : 0}">0</h3>
+                                        </div>
+                                        <div class="icon-bg bg-success">
+                                            <i class="bi bi-book"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="text-muted mb-1">Average Score</p>
+                                            <h3 class="mb-0" id="averageScore">0%</h3>
+                                        </div>
+                                        <div class="icon-bg bg-warning">
+                                            <i class="bi bi-award"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="text-muted mb-1">Days Active</p>
+                                            <h3 class="mb-0">15</h3>
+                                        </div>
+                                        <div class="icon-bg bg-info">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Courses -->
+                    <h3 class="mt-5 mb-4">My Current Courses</h3>
+                    <div class="row" id="ongoingCoursesContainer">
+                        <div class="col-md-6 mb-4" th:each="course : ${courses}">
+                            <div class="course-card">
+                                <h5>
+                                    <span th:text="${course.courseName}"></span>
+                                    <span class="course-badge" th:text="${course.courseId}"></span>
+                                </h5>
+                                <p class="mb-3 text-muted" th:text="${course.courseDescription}"></p>
+                                
+                                <!-- Course Progress Bar -->
+                                <div class="course-progress">
+                                    <div class="course-progress-bar" style="width: 65%;"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <small class="text-muted">65% complete</small>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        <span th:if="${course.courseStartDate != null}" 
+                                              th:text="${course.courseStartDate.format(T(java.time.format.DateTimeFormatter).ofPattern('MMM dd, yyyy'))}">Jan 15, 2025</span>
+                                        <span th:unless="${course.courseStartDate != null}">-</span>
+                                        -
+                                        <span th:if="${course.courseEndDate != null}" 
+                                              th:text="${course.courseEndDate.format(T(java.time.format.DateTimeFormatter).ofPattern('MMM dd, yyyy'))}">May 30, 2025</span>
+                                        <span th:unless="${course.courseEndDate != null}">-</span>
+                                    </small>
+                                </div>
+                                
+                                <!-- Course Stats -->
+                                <div class="course-stats mb-4">
+                                    <div class="course-stat">
+                                        <div class="course-stat-value" th:text="${course.courseCredits ?: '3'}">3</div>
+                                        <div class="course-stat-label">Credits</div>
+                                    </div>
+                                    <div class="course-stat">
+                                        <div class="course-stat-value" th:text="${course.instructorName ?: 'Dr. Smith'}">Dr. Smith</div>
+                                        <div class="course-stat-label">Instructor</div>
+                                    </div>
+                                    <div class="course-stat">
+                                        <div class="course-stat-value" th:text="${course.courseStatus ?: 'Active'}">Active</div>
+                                        <div class="course-stat-label">Status</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a th:href="@{/Student/Modules(courseId=${course.courseId})}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-book me-2"></i>View Modules
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-info-circle me-2"></i>Course Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Results -->
+                    <div class="card mt-5" th:if="${results != null && !results.isEmpty()}">
+                        <div class="card-header bg-white">
+                            <h3 class="h5 mb-0">Recent Assessment Results</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Assessment</th>
+                                            <th>Score</th>
+                                            <th>Status</th>
+                                            <th>Completion Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="result : ${results}" th:if="${result != null}">
+                                            <td th:text="${result.assessmentTitle}">Assessment Title</td>
+                                            <td>
+                                                <span th:text="${result.obtainedMarks + '/' + result.totalMarks}">0/0</span>
+                                                (<span th:text="${result.resultPercentage != null ? #numbers.formatDecimal(result.resultPercentage, 1, 1) + '%' : '0%'}">0%</span>)
+                                            </td>
+                                            <td>
+                                                <span th:class="${'badge ' + (result.resultStatus == 'PASSED' ? 'bg-success' : 'bg-danger')}" 
+                                                      th:text="${result.resultStatus}">Status</span>
+                                            </td>
+                                            <td th:text="${result.completedDate != null ? result.completedDate.format(T(java.time.format.DateTimeFormatter).ofPattern('MMM dd, yyyy')) : '-'}">Date</td>
+                                            <td>
+                                                <a th:href="@{/Student/result(assessmentId=${result.assessmentId})}" class="btn btn-sm btn-outline-primary">
+                                                    View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Academic Progress Section -->
+                <section id="academicProgress" style="display: none;">
+                    <h2 class="section-title">Academic Progress</h2>
+                    
+                    <div class="content-card">
+                        <h3 class="h5 fw-bold mb-3">Overall Performance</h3>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="line-chart mb-4">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="circle-chart-container">
+                                    <canvas id="completionChart"></canvas>
+                                    <div class="percentage" id="completionPercentage">0%</div>
+                                </div>
+                                <div class="text-center mt-2">Overall Completion Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile Section -->
+                <section id="profile" style="display: none;">
+                    <h2 class="section-title">My Profile</h2>
+                    
+                    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal-content" type="button" role="tab">
+                                <i class="bi bi-person me-2"></i>Personal Info
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-content" type="button" role="tab">
+                                <i class="bi bi-gear me-2"></i>Account Settings
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="profileTabContent">
+                        <!-- Personal Info Tab -->
+                        <div class="tab-pane fade show active" id="personal-content" role="tabpanel" aria-labelledby="personal-tab">
+                            <div class="content-card">
+                                <div class="profile-header mb-4">
+                                    <div class="profile-avatar-large">
+                                        <span th:text="${#strings.substring(user.userFirstName,0,1) + #strings.substring(user.userLastName,0,1)}">JS</span>
+                                    </div>
+                                    <h3 class="mt-3" th:text="${user.userFirstName + ' ' + user.userLastName}">John Smith</h3>
+                                    <p class="text-muted" th:text="${user.userEmail}">john.smith@example.com</p>
+                                </div>
+                                
+                                <form class="profile-form" th:action="@{/Student/UpdateProfile}" method="post" th:object="${user}">
+                                    <div class="row">
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">First Name</label>
+                                            <input type="text" class="form-control" th:field="*{userFirstName}" readonly>
+                                        </div>
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" th:field="*{userLastName}" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" th:field="*{userEmail}" readonly>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">Mobile</label>
+                                            <input type="tel" class="form-control" th:field="*{userMobileNumber}" readonly>
+                                        </div>
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">Date of Birth</label>
+                                            <input type="date" class="form-control" th:field="*{userDob}" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">Gender</label>
+                                            <select class="form-select" th:field="*{userGender}" disabled>
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                                <option value="Prefer not to say">Prefer not to say</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-field">
+                                            <label class="form-label">Department</label>
+                                            <input type="text" class="form-control" th:field="*{userDepartment}" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 col-md-6 col-lg-4 mx-auto mt-4">
+                                        <button class="btn btn-primary py-2" id="editProfileBtn" type="button">
+                                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                                        </button>
+                                        <button class="btn btn-success py-2" id="saveProfileBtn" type="submit" style="display: none;">
+                                            <i class="bi bi-save me-2"></i>Save Changes
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Account Settings Tab -->
+                        <div class="tab-pane fade" id="settings-content" role="tabpanel" aria-labelledby="settings-tab">
+                            <div class="content-card account-settings-card">
+                                <h3 class="h5 fw-bold mb-4">Change Password</h3>
+                                <form id="passwordForm" th:action="@{/Student/ChangePassword}" method="post">
+                                    <div class="row">
+                                        <div class="col-md-4 form-field">
+                                            <label class="form-label">Current Password</label>
+                                            <div class="password-input-group">
+                                                <input type="password" class="form-control" name="currentPassword" id="currentPassword" required>
+                                                <i class="bi bi-eye-slash toggle-password" data-target="currentPassword"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 form-field">
+                                            <label class="form-label">New Password</label>
+                                            <div class="password-input-group">
+                                                <input type="password" class="form-control" name="newPassword" id="newPassword" required>
+                                                <i class="bi bi-eye-slash toggle-password" data-target="newPassword"></i>
+                                            </div>
+                                            <div class="password-strength mt-2" id="passwordStrength">
+                                                <div class="strength-bar"></div>
+                                                <small class="strength-text">Password strength</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 form-field">
+                                            <label class="form-label">Confirm Password</label>
+                                            <div class="password-input-group">
+                                                <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" required>
+                                                <i class="bi bi-eye-slash toggle-password" data-target="confirmPassword"></i>
+                                            </div>
+                                            <div id="passwordMatch" class="mt-2"></div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button class="btn btn-accent" type="submit">Update Password</button>
+                                    </div>
+                                </form>
+                                
+                                <h3 class="h5 fw-bold mt-5 mb-4">Notification Preferences</h3>
+                                <div class="notification-preferences">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                        <label class="form-check-label" for="emailNotifications">
+                                            Email Notifications
+                                        </label>
+                                        <div class="text-muted small">Receive important updates and announcements via email</div>
+                                    </div>
+                                    
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="assignmentReminders" checked>
+                                        <label class="form-check-label" for="assignmentReminders">
+                                            Assignment Due Reminders
+                                        </label>
+                                        <div class="text-muted small">Receive reminders about upcoming assignment deadlines</div>
+                                    </div>
+                                    
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="gradeAlerts" checked>
+                                        <label class="form-check-label" for="gradeAlerts">
+                                            Grade Alerts
+                                        </label>
+                                        <div class="text-muted small">Be notified when instructors post new grades</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button class="btn btn-primary" id="saveNotificationPrefs">Save Preferences</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/resources/js/Student/Profile.js}"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Ally - Assessment Overview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/resources/css/Student/assessment.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-container">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    Assessment Ally
+                </div>
+                <div class="user-info">
+                    <span class="user-name" th:text="${session.username}">Student</span>
+                    <a th:href="@{/Student/Modules}" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Back to Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="assessment-container">
+                <div class="assessment-header">
+                    <h1 class="assessment-title">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        <span th:text="${assessment != null ? assessment.assessmentTitle : 'Assessment Overview'}">Assessment Title</span>
+                    </h1>
+                    <p class="text-muted" th:if="${existingResult == null}">Please review the information below before starting your assessment</p>
+                    <div class="alert alert-warning" th:if="${existingResult != null}">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        You have already completed this assessment. 
+                        <a th:href="@{/Student/result(assessmentId=${assessment.assessmentId})}" class="alert-link">View your results</a>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <!-- Assessment Info Card -->
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-header-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <h5 class="card-header-title">Assessment Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">Duration:</span>
+                                        <span class="info-value" th:text="${assessment != null ? assessment.assessmentDurationMinutes + ' minutes' : 'Not specified'}">2 hours</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+								    <div class="info-icon">
+								        <i class="fas fa-calendar-alt"></i>
+								    </div>
+								    <div>
+								        <span class="info-label">Due Date:</span>
+								        <!-- Handles the date formatting without using #temporals -->
+								        <span class="info-value" th:if="${assessment == null || assessment.endDate == null}">No due date</span>
+								        <span class="info-value" th:if="${assessment != null && assessment.endDate != null}" 
+								              th:text="${assessment.endDate != null ? assessment.endDate.getDayOfMonth() + ' ' + assessment.endDate.getMonth() + ' ' + assessment.endDate.getYear() : ''}">June 15, 2023</span>
+								    </div>
+								</div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-code"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">Type:</span>
+                                        <span class="info-value" th:text="${assessment != null ? assessment.assessmentType : 'Not specified'}">Multiple Choice & Coding</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div>
+                                        <span class="info-label">Module:</span>
+                                        <span class="info-value" th:text="${assessment != null ? assessment.moduleName : 'Not specified'}">Java Programming</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Score Info Card -->
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <div class="card-header-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <h5 class="card-header-title">Scoring Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="score-info">
+                                    <span class="score-label">Total Points:</span>
+                                    <span class="score-value" th:text="${assessment != null ? assessment.assessmentTotalMarks : '0'}">100</span>
+                                </div>
+                                <div class="score-info">
+                                    <span class="score-label">Passing Score:</span>
+                                    <span class="score-value">
+                                        <span th:text="${assessment != null ? assessment.assessmentPassingScore : '0'}">60</span>
+                                        <span class="pass-indicator" th:if="${assessment != null && assessment.assessmentTotalMarks > 0}" 
+                                              th:text="${assessment.assessmentPassingScore * 100 / assessment.assessmentTotalMarks + '%'}">60%</span>
+                                    </span>
+                                </div>
+                                
+                                <div class="progress-container">
+                                    <div class="progress-bar" th:if="${assessment != null && assessment.assessmentTotalMarks > 0}"
+                                         th:style="'width: ' + ${assessment.assessmentPassingScore * 100 / assessment.assessmentTotalMarks} + '%'"></div>
+                                </div>
+                                
+                                <div class="score-info mt-4">
+                                    <span class="score-label">Time Allocation:</span>
+                                </div>
+                                <div class="countdown" id="countdown">
+                                    <i class="fas fa-hourglass-half me-2"></i>
+                                    <span id="countdownTimer" th:attr="data-duration=${assessment != null ? assessment.assessmentDurationMinutes : 120}">
+                                        <span th:text="${assessment != null ? assessment.assessmentDurationMinutes + ':00' : '2:00:00'}">2:00:00</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Instructions Card -->
+                <div class="info-card mt-4">
+                    <div class="card-header">
+                        <div class="card-header-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h5 class="card-header-title">Instructions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${assessment != null && assessment.instructionText != null && !assessment.instructionText.isEmpty()}">
+                            <div th:utext="${assessment.instructionText}">
+                                <!-- Instruction text from assessment will be rendered here -->
+                            </div>
+                        </div>
+                        <div th:if="${assessment == null || assessment.instructionText == null || assessment.instructionText.isEmpty()}">
+                            <ol class="instructions-list">
+                                <li>This assessment consists of multiple-choice and short answer questions.</li>
+                                <li>You have limited time to complete the assessment as indicated above.</li>
+                                <li>Answer all questions to the best of your ability.</li>
+                                <li>You may not use external resources or communicate with others during the assessment.</li>
+                                <li>Once you click "Start Assessment," the timer will begin and cannot be paused.</li>
+                                <li>You can mark questions for review and return to them later.</li>
+                                <li>Ensure you have a stable internet connection before beginning.</li>
+                                <li>Click "Submit" when you have completed all questions.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <a th:if="${existingResult == null && assessment != null}" th:href="@{/Student/questions/{id}(id=${assessment.assessmentId})}" class="text-decoration-none">
+                        <button class="start-button">
+                            <i class="fas fa-play-circle"></i>
+                            Start Assessment
+                        </button>
+                    </a>
+                    <a th:if="${existingResult != null && assessment != null}" th:href="@{/Student/result(assessmentId=${assessment.assessmentId})}" class="text-decoration-none">
+                        <button class="result-button">
+                            <i class="fas fa-eye"></i>
+                            View Results
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/resources/js/Student/assessment.js}"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Learning Modules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/resources/css/Student/Modules.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Side Navigation -->
+            <div class="main-sidenav" id="mainSidenav">
+                <div class="d-flex flex-column h-100">
+                    <!-- Header -->
+                    <div class="py-4 text-center">
+                        <h3 class="mb-4 text-white">
+                            <i class="fas fa-graduation-cap me-2"></i>Assessment Ally
+                        </h3>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <div class="flex-grow-1">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Student/Profile}">
+                                    <i class="fas fa-home me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white active" href="#">
+                                    <i class="fas fa-book-open me-2"></i>My Courses
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Student/Logout}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Profile Section -->
+                    <div class="mt-auto py-3 border-top border-secondary">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" 
+                               th:text="${user != null ? user.userFirstName + ' ' + user.userLastName : 'User'}">
+                                <i class="fas fa-user me-2"></i>
+                                <strong>John Smith</strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 bg-light main-content">
+                <div class="container-fluid py-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="h2 text-dark fw-bold">My Learning Modules</h1>
+                            <p class="text-muted" th:if="${selectedCourse != null}" th:text="'Course: ' + ${selectedCourse.courseName}"></p>
+                            
+                            <!-- Course Selection Dropdown -->
+                            <div class="mb-3" th:if="${courses != null && !courses.isEmpty()}">
+                                <form id="courseForm" th:action="@{/Student/Modules}" method="get">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-auto">
+                                            <label for="courseSelect" class="col-form-label">Select Course:</label>
+                                        </div>
+                                        <div class="col-auto">
+                                            <select id="courseSelect" name="courseId" class="form-select" onchange="this.form.submit()">
+                                                <option value="">Select a course</option>
+                                                <option th:each="course : ${courses}" 
+                                                        th:value="${course.courseId}" 
+                                                        th:text="${course.courseName}"
+                                                        th:selected="${selectedCourse != null && selectedCourse.courseId == course.courseId}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module Grid -->
+                    <div class="module-grid">
+                        <!-- Module Selection Sidebar -->
+                        <div class="module-sidebar" id="moduleSidebar">
+                            <div class="module-sidebar-header">
+                                <h5>Course Modules</h5>
+                            </div>
+                            <div class="module-list">
+                                <div class="module-item" 
+                                     th:each="module : ${modules}"
+                                     th:attr="data-module-id=${module.moduleId}"
+                                     onclick="loadModule(this)">
+                                    <div class="flex items-center gap-2">
+                                        <span class="status-dot" 
+                                              th:classappend="${moduleStatusMap != null && moduleStatusMap[module.moduleId] != null ? moduleStatusMap[module.moduleId] : 'not-started'}"></span>
+                                        <span class="module-item-name" th:text="${module.moduleName}"></span>
+                                    </div>
+                                    <div class="text-muted small">
+                                        <span th:text="${completedAssessmentsByModule != null && completedAssessmentsByModule[module.moduleId] != null ? #lists.size(completedAssessmentsByModule[module.moduleId]) : 0} + '/' + ${assessmentsByModule != null && assessmentsByModule[module.moduleId] != null ? #lists.size(assessmentsByModule[module.moduleId]) : 0}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Module Content Area -->
+                        <div class="module-content">
+                            <div class="module-header">
+                                <h2 id="moduleTitle">Select a module</h2>
+                            </div>
+                            
+                            <div class="module-tabs">
+                                <div class="module-tab active" onclick="switchTab('overview')">
+                                    <span class="module-tab-badge">O</span>
+                                    <span>Overview</span>
+                                </div>
+                                <div class="module-tab" onclick="switchTab('assessments')">
+                                    <span class="module-tab-badge">A</span>
+                                    <span>Available Assessments</span>
+                                </div>
+                                <div class="module-tab" onclick="switchTab('completed')">
+                                    <span class="module-tab-badge">C</span>
+                                    <span>Completed Assessments</span>
+                                </div>
+                            </div>
+
+                            <div class="tab-content">
+                                <!-- Overview Tab -->
+                                <div id="overviewTab" class="tab-pane active">
+                                    <div class="row mt-4">
+                                        <div class="col-md-6">
+                                            <div class="card mb-4">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Module Progress</h5>
+                                                    <div class="progress-indicator mb-3">
+                                                        <div class="progress-bar" id="moduleProgress" style="width: 0%"></div>
+                                                    </div>
+                                                    <p class="mb-0" id="moduleProgressText">Select a module to view progress</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Assessment Statistics</h5>
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <div>
+                                                            <p class="text-muted mb-1">Available</p>
+                                                            <h4 id="availableCount">0</h4>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted mb-1">Completed</p>
+                                                            <h4 id="completedCount">0</h4>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted mb-1">Avg. Score</p>
+                                                            <h4 id="avgScore">0%</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Assessments Tab (Pending/Available) -->
+                                <div id="assessmentsTab" class="tab-pane">
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <h5>Available Assessments</h5>
+                                            <p class="text-muted">These assessments are ready for you to take</p>
+                                        </div>
+                                    </div>
+                                    <div id="pendingAssessmentsList" class="assessment-list">
+                                        <!-- Dynamically filled by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Completed Assessments Tab -->
+                                <div id="completedTab" class="tab-pane">
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <h5>Completed Assessments</h5>
+                                            <p class="text-muted">View your results for assessments you've completed</p>
+                                        </div>
+                                    </div>
+                                    <div id="completedAssessmentsList" class="assessment-list">
+                                        <!-- Dynamically filled by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    // Global data for JavaScript
+    const contextPath = /*[[@{/}]]*/ '';
+    const modules = /*[[${modules}]]*/ [];
+    const assessmentsByModule = /*[[${assessmentsByModule}]]*/ {};
+    const pendingAssessmentsByModule = /*[[${pendingAssessmentsByModule}]]*/ {};
+    const completedAssessmentsByModule = /*[[${completedAssessmentsByModule}]]*/ {};
+    const moduleStatusMap = /*[[${moduleStatusMap}]]*/ {};
+    /*]]>*/
+</script>
+    <script th:src="@{/resources/js/Student/Modules.js}"></script>
+</body>
+</html>

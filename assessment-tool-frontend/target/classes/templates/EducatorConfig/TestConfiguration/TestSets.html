@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<!-- TinyMCE script -->
+<script
+	src="https://cdn.tiny.cloud/1/q974vam9phu3qfp0bqotd2z9kqnvy45rfihy9w1kp0rjw4s0/tinymce/6/tinymce.min.js"
+	referrerpolicy="origin"></script>
+
+
+
+<!-- CSS -->
+<link rel="stylesheet"
+	th:href="@{/resources/css/EducatorConfig/TestConfiguration/TestSets.css}">
+</head>
+
+<!-- Change the opening body tag to this: -->
+<body th:attr="data-assessment-id=${session.currentAssessmentId}, data-assessment-status=${assessment?.assessmentStatus ?: 'draft'}">
+
+<!-- Add these hidden inputs as backups -->
+<input type="hidden" id="hiddenAssessmentId" th:value="${session.currentAssessmentId}">
+<input type="hidden" id="hiddenAssessmentStatus" th:value="${assessment?.assessmentStatus ?: 'draft'}">
+
+
+<!-- Add this hidden input as a backup -->
+<input type="hidden" id="hiddenAssessmentId" th:value="${session.currentAssessmentId}">
+
+
+	<!-- Header - Start -->
+	<div class="header d-flex align-items-center">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 d-flex align-items-center">
+					<button class="btn btn-dashboard d-flex align-items-center me-3">
+						<i class="bi bi-speedometer2 me-2"></i> <a
+							th:href="@{/EducatorConfig/TestDashboard}"><span>Dashboard</span></a>
+					</button>
+					<h6 class="mb-0 fw-semibold">New test</h6>
+				</div>
+				<div class="col-md-6 text-end">
+					<button
+						class="btn btn-test-info d-flex align-items-center ms-auto me-3">
+						<i class="bi bi-info-circle me-2"></i> <a
+							th:href="@{/EducatorConfig/TestConfiguration/TestInfo}"><span
+							class="text-muted">Test info</span></a>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Header - End -->
+
+
+	<!-- Full-Container - Start -->
+	<div class="container-fluid">
+		<div class="row g-0">
+			<!-- Sidebar - Start-->
+			<div class="col-md-3 col-lg-3 sidebar pt-3">
+				<div class="ps-3 pe-3">
+				<span class="setup-badge draft d-inline-block mb-3">SETUP IN
+						PROGRESS</span>
+
+					<!-- Test configuration - Start-->
+					<div
+						class="d-flex justify-content-between align-items-center sidebar-section-header">
+						<h5 class="mb-0">Test configuration</h5>
+						<i class="bi bi-chevron-up text-muted toggle-icon"></i>
+					</div>
+
+					<div class="progress-section mt-3 mb-3">
+						<span>83% completed</span>
+						<div class="progress-container flex-grow-1">
+							<div class="progress-bar" style="width: 83%"></div>
+						</div>
+					</div>
+
+					<!-- Test configuration Items - Start-->
+					<div class="sidebar-navigation mt-4 collapsible-section">
+						<a th:href="@{/EducatorConfig/TestConfiguration/BasicSettings}"
+							class="sidebar-link"> <i class="bi bi-gear"></i> <span>Basic
+								settings</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/QuestionManager}"
+							class="sidebar-link"> <i class="bi bi-list-check"></i> <span>Questions
+								manager</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TestSets}"
+							class="sidebar-link active"> <i class="bi bi-collection"></i>
+							<span>Test sets</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TestStartPage}"
+							class="sidebar-link"> <i class="bi bi-file-text"></i> <span>Test
+								start page</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/GradingSummary}"
+							class="sidebar-link"> <i class="bi bi-trophy"></i> <span>Grading
+								& summary</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TimeSettings}"
+							class="sidebar-link"> <i class="bi bi-clock"></i> <span>Time
+								settings</span>
+						</a>
+					</div>
+					<!-- Test configuration Items - End-->
+
+
+
+					<button class="btn btn-activate w-100 mt-3">
+						<i class="bi bi-play-fill"></i> Activate test
+					</button>
+
+					<!-- Test configuration - End-->
+
+
+
+					<div class="horizontal-divider mt-4"></div>
+
+					<!-- Test progress & results - Start-->
+					<div
+						class="d-flex justify-content-between align-items-center mt-3 sidebar-section-header">
+						<h5 class="mb-0">Test progress & results</h5>
+						<i class="bi bi-chevron-down text-muted toggle-icon"></i>
+					</div>
+
+					<!-- Test progress & results Items - Start-->
+					<div class="sidebar-navigation mt-3 collapsible-section collapsed">
+						<a th:href="@{/EducatorConfig/TestResult/ResultTable}"
+							class="sidebar-link"> <i class="bi bi-bar-chart"></i> <span>Results
+								table</span>
+						</a>
+
+						<!-- <a href="#" class="sidebar-link">
+        				<i class="bi bi-file-earmark-check"></i>
+       					 <span>Test sheets review</span>
+   						 </a> -->
+
+						<a th:href="@{/EducatorConfig/TestResult/AssessmentReview}"
+							class="sidebar-link"> <i class="bi bi-check-square"></i> <span>Answers
+								review</span>
+						</a>
+
+						<!-- <a href="#" class="sidebar-link">
+        				<i class="bi bi-graph-up"></i>
+        				<span>Statistics</span>
+    					</a> -->
+					</div>
+					<!-- Test progress & results Items - End-->
+
+
+					<div class="horizontal-divider mt-4"></div>
+					<!-- Test progress & results - End-->
+
+				</div>
+			</div>
+			<!-- Sidebar - End-->
+
+
+
+			<!-- Main Content - Start -->
+			<div class="col-md-9 col-lg-9 main-content">
+				<h5 class="mb-4">Test Sets</h5>
+
+				<!-- Hidden field to store assessment ID -->
+				<input type="hidden" id="assessmentId"
+					th:value="${assessment.assessmentId}">
+
+				<!-- Main Content Items - Start -->
+				<div class="card mb-4">
+					<div class="card-body p-4">
+						<div class="questions-order-section">
+							<div class="questions-order mb-3">QUESTIONS ORDER</div>
+
+							<div class="form-section">
+								<p class="section-title mb-3">Select one of the options:</p>
+
+								<form id="questionOrderForm">
+									<div class="option-row mb-3">
+										<div class="form-check">
+											<input class="form-check-input" type="radio"
+												name="questionOrder" id="fixedOrder" value="FIXED">
+											<label class="form-check-label" for="fixedOrder">
+												Fixed questions and answers order as defined in Questions
+												manager </label>
+										</div>
+									</div>
+
+									<div class="option-row mb-3">
+										<div class="form-check">
+											<input class="form-check-input" type="radio"
+												name="questionOrder" id="randomOrder" value="RANDOM">
+											<label class="form-check-label" for="randomOrder">
+												Random questions and answers order </label>
+										</div>
+									</div>
+
+									<div class="option-row">
+										<div class="form-check">
+											<input class="form-check-input" type="radio"
+												name="questionOrder" id="difficultyOrder" value="DIFFICULTY">
+											<label class="form-check-label" for="difficultyOrder">
+												Difficulty based order (Easy-To-Hard) </label>
+										</div>
+									</div>
+								</form>
+
+								<div class="category-badge">
+									<span id="saveStatus"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Main Content Items - End -->
+
+				<div class="action-buttons">
+					<button id="saveOrderBtn" class="btn btn-success me-2 mb-2 mb-md-0">Save</button>
+				</div>
+			</div>
+			<!-- Main Content - End -->
+		</div>
+	</div>
+	<!-- Full-Container - End -->
+
+	<!-- Bootstrap JavaScript Bundle with Popper -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- JavaScript -->
+	<script
+		th:src="@{/resources/js/EducatorConfig/TestConfiguration/TestSets.js}"></script>
+</body>
+
+</html>

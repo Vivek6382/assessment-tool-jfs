@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Test Dashboard</title>
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+
+<!-- Bootstrap Icons -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+	rel="stylesheet" />
+
+<!-- Custom CSS -->
+<link rel="stylesheet"
+	th:href="@{/resources/css/EducatorConfig/TestDashboard/TestDashboard.css}" />
+</head>
+
+<body>
+	<div class="container-fluid main-container py-3">
+		<!-- Header -->
+		<div class="row header-section mb-4">
+			<div class="col-md-8">
+				<div class="d-flex align-items-center">
+					<h1 class="header-title">My tests</h1>
+					<span class="test-count" id="testCountSpan">(<span
+						th:text="${assessments != null ? #lists.size(assessments) : 0}">0</span>)
+					</span>
+				</div>
+			</div>
+			<div class="col-md-4 text-md-end mt-3 mt-md-0">
+				<button class="btn btn-secondary me-2" id="backToAssessmentsBtn">
+					<i class="bi bi-arrow-left"></i> Back to Assessments
+				</button>
+				<a th:href="@{/EducatorConfig/TestConfiguration/BasicSettings}"
+					class="btn btn-success"> <i class="bi bi-plus-lg"></i> New test
+				</a>
+			</div>
+		</div>
+
+		<!-- Error Message -->
+		<div th:if="${error}" class="alert alert-danger mb-4"
+			th:text="${error}"></div>
+
+		<!-- Filters -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card filter-card">
+					<div class="card-body p-0">
+						<div class="row g-0">
+							<!-- Sort By Filter -->
+							<div class="col-md-3 filter-section dropdown-filter">
+								<div
+									class="d-flex align-items-center h-100 px-3 dropdown-toggle"
+									data-bs-toggle="dropdown">
+									<span class="filter-label">Sort by</span>
+									<div class="filter-value" id="sort-value">Newest first</div>
+									<i class="bi bi-chevron-down ms-auto"></i>
+								</div>
+								<ul class="dropdown-menu" id="sort-dropdown">
+									<li><a class="dropdown-item active" href="#"
+										data-value="newest">Newest first</a></li>
+									<li><a class="dropdown-item" href="#" data-value="oldest">Oldest
+											first</a></li>
+									<li><a class="dropdown-item" href="#"
+										data-value="title-asc">Title (A-Z)</a></li>
+									<li><a class="dropdown-item" href="#"
+										data-value="title-desc">Title (Z-A)</a></li>
+								</ul>
+							</div>
+
+							<!-- Status Filter -->
+							<div class="col-md-3 filter-section dropdown-filter">
+								<div
+									class="d-flex align-items-center h-100 px-3 dropdown-toggle"
+									data-bs-toggle="dropdown">
+									<span class="filter-label">Status</span>
+									<div class="filter-value" id="status-value">All</div>
+									<i class="bi bi-chevron-down ms-auto"></i>
+								</div>
+								<ul class="dropdown-menu" id="status-dropdown">
+									<li><a class="dropdown-item active" href="#"
+										data-value="all">All</a></li>
+									<li><a class="dropdown-item" href="#" data-value="active">Active</a></li>
+									<li><a class="dropdown-item" href="#" data-value="frozen">Frozen</a></li>
+									<li><a class="dropdown-item" href="#"
+										data-value="inactive">Inactive</a></li>
+									<li><a class="dropdown-item" href="#" data-value="draft">Draft</a></li>
+								</ul>
+							</div>
+
+							<!-- Search Input -->
+							<div class="col-md-6 filter-section search-section">
+								<div class="d-flex align-items-center h-100 px-3 w-100">
+									<i class="bi bi-search search-icon"></i> <input type="text"
+										class="search-input" id="search-input"
+										placeholder="Search tests..." /> <i
+										class="bi bi-x-circle search-clear d-none"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Dynamic Test Cards -->
+		<div class="row" id="test-cards-container">
+			<div th:if="${not #lists.isEmpty(assessments)}"
+				th:each="assessment : ${assessments}"
+				class="col-lg-6 mb-4 test-card-container"
+				th:data-category="${assessment.assessmentType != null ? assessment.assessmentType.toLowerCase() : 'uncategorized'}"
+				th:data-status="${assessment.assessmentStatus != null ? assessment.assessmentStatus.toLowerCase() : 'draft'}"
+				th:data-created="${assessment.createdAt != null ? assessment.createdAt : ''}"
+				th:data-title="${assessment.assessmentTitle != null ? assessment.assessmentTitle.toLowerCase() : ''}">
+				<!-- Update the card click handler to include assessment ID -->
+				<div class="test-card"
+					th:data-assessment-id="${assessment.assessmentId}"
+					th:onclick="'window.location.href=\'/EducatorConfig/TestConfiguration/BasicSettings?assessmentId=' + ${assessment.assessmentId} + '\''">
+					<div class="card-body">
+						<div class="d-flex justify-content-between align-items-start mb-3">
+							<div class="d-flex align-items-center">
+								<div class="test-status"
+									th:class="${assessment.assessmentStatus == null ? 'draft' : 
+                               assessment.assessmentStatus.equalsIgnoreCase('active') ? 'active' : 
+                               assessment.assessmentStatus.equalsIgnoreCase('frozen') ? 'frozen' :
+                               assessment.assessmentStatus.equalsIgnoreCase('inactive') ? 'inactive' : 'draft'}"
+									th:text="${assessment.assessmentStatus != null ? assessment.assessmentStatus.toUpperCase() : 'DRAFT'}">
+									STATUS</div>
+								<div class="test-date ms-3"
+									th:if="${assessment.createdAt != null}"
+									th:text="'CREATED: ' + ${assessment.createdAt}">CREATED:
+									2023-01-01</div>
+							</div>
+							<div class="dropdown">
+								<button class="btn btn-sm btn-icon" data-bs-toggle="dropdown">
+									<i class="bi bi-three-dots-vertical"></i>
+								</button>
+								<!-- In the dropdown menu for each card -->
+								<ul class="dropdown-menu dropdown-menu-end">
+									<li><a class="dropdown-item"
+										th:href="@{/EducatorConfig/TestConfiguration/BasicSettings(assessmentId=${assessment.assessmentId})}">
+											Edit </a></li>
+									<li><a class="dropdown-item delete-assessment" href="#"
+										th:data-assessment-id="${assessment.assessmentId}"> Delete
+									</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="test-info mb-4">
+							<h3 class="test-title" th:text="${assessment.assessmentTitle}">Test
+								Title</h3>
+							<div class="test-description"
+								th:utext="${assessment.assessmentDescription != null && !#strings.isEmpty(assessment.assessmentDescription) ? assessment.assessmentDescription : '(No Description)'}">
+								(No Description)</div>
+						</div>
+
+						<div class="d-flex justify-content-between align-items-center"
+							th:unless="${assessment.assessmentStatus == null || assessment.assessmentStatus.equalsIgnoreCase('draft')}">
+							<div class="score-section">
+								<i class="bi bi-graph-up"></i> <span class="score-value">-%</span>
+								<span class="score-label">avg. score</span>
+							</div>
+
+							<div class="vertical-divider mx-3"></div>
+
+							<div class="results-section">
+								<span class="results-label">Results</span> <span
+									class="results-count">(0)</span>
+							</div>
+
+							<!-- In the test card section, update the module display logic -->
+							<div class="test-category">
+								<span th:if="${assessment.moduleId != null}"> <span
+									th:if="${assessment.module != null and assessment.module.moduleName != null}"
+									th:text="${assessment.module.moduleName}">MODULE</span> <span
+									th:if="${assessment.module == null or assessment.module.moduleName == null}">
+										<span
+										th:text="${assessment.moduleName != null ? assessment.moduleName : 'Unnamed Module'}">MODULE</span>
+								</span>
+								</span> <span th:if="${assessment.moduleId == null}">UNCATEGORIZED</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div th:if="${#lists.isEmpty(assessments)}"
+				class="col-12 text-center text-muted">No assessments
+				available.</div>
+		</div>
+
+		<!-- Pagination Controls -->
+		<div class="row mt-4">
+			<div
+				class="col-12 d-flex justify-content-between align-items-center flex-wrap">
+				<div class="d-flex align-items-center mb-2">
+					<span class="me-2">Show:</span> <select
+						class="form-select form-select-sm items-per-page-select"
+						style="width: 80px;">
+						<option value="5">5</option>
+						<option value="10" selected>10</option>
+						<option value="20">20</option>
+						<option value="30">30</option>
+						<option value="50">50</option>
+					</select> <span class="ms-2">items per page</span>
+				</div>
+
+				<nav aria-label="Page navigation">
+					<ul class="pagination mb-0" id="pagination">
+						<!-- Pagination will be added dynamically via JavaScript -->
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap JS Bundle -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Page Script -->
+	<script
+		th:src="@{/resources/js/EducatorConfig/TestDashboard/TestDashboard.js}"></script>
+
+</body>
+</html>

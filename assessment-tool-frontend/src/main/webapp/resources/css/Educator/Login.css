@@ -1,0 +1,131 @@
+body {
+    background-color: #ebecfa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #DBD3D3;
+    overflow: hidden;
+}
+
+.login-container {
+    max-width: 750px;
+    width: 100%;
+    background-color: #091057;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+}
+
+.login-banner {
+    width: 50%;
+    background-color: #091057;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.animated-text {
+    font-size: 2.4rem;
+    position: absolute;
+    bottom: -50px;
+    opacity: 0;
+    font-weight: bold;
+    text-transform: none; /* Keeps capitalization as "Assessment Ally" */
+    animation: slideUp 2.5s ease-in-out forwards;
+}
+
+.animated-slogan {
+    font-size: 1rem;
+    position: absolute;
+    bottom: -70px;
+    opacity: 0;
+    font-weight: normal;
+    font-style: italic;
+    text-transform: none; /* Keeps it as "Your Gateway to Smarter Evaluations" */
+    animation: slideUp 2.5s ease-in-out 0.5s forwards;
+}
+
+@keyframes slideUp {
+    from {
+        bottom: -50px;
+        opacity: 0;
+    }
+    to {
+        bottom: 50%;
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+}
+
+.floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgb(252, 128, 5);
+    opacity: 0.7;
+    border-radius: 2px;
+    animation: floatUp 5s infinite linear;
+}
+
+@keyframes floatUp {
+    from {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(-10vh);
+        opacity: 1;
+    }
+}
+
+.login-form {
+    width: 50%;
+    padding: 2rem;
+    background: white;
+    color: black;
+}
+
+.login-form h2 {
+    margin-bottom: 1.5rem;
+    color: #024CAA;
+}
+
+.login-form .btn {
+    background-color: #EC8305;
+    color: white;
+}
+
+.login-form .btn:hover {
+    background-color: #d97404;
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+    }
+    .login-banner {
+        width: 100%;
+        height: 180px;
+    }
+    .login-form {
+        width: 100%;
+        padding: 1.5rem;
+    }
+}

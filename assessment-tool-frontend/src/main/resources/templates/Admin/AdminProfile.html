@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Tool - Admin Profile</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/resources/css/Admin/AdminProfile.css}">
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="d-flex align-items-center">
+                <div class="logo me-2">A</div>
+                <h5 class="mb-0 fw-bold">Admin Portal</h5>
+            </div>
+            <button class="d-md-none btn btn-sm text-secondary border-0 ms-auto" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/Admin/AdminDashboard}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/Admin/AdminPanel}">
+                    <i class="fas fa-users-cog"></i> Manage Users
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{/Admin/AdminProfile}">
+                    <i class="fas fa-user-shield"></i> Profile
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer p-3 border-top">
+        <a th:href="@{/Educator/Logout}" class="btn btn-outline-danger w-100" id="signOutBtn">
+            <i class="fas fa-sign-out-alt me-2"></i> Sign Out
+        </a>
+    </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <h4 class="page-title mb-4">Admin Profile</h4>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-avatar" th:text="${admin != null ? admin.userFirstName.substring(0,1) + admin.userLastName.substring(0,1) : 'AD'}">AD</div>
+                <div class="profile-info">
+                    <h2 th:text="${admin != null ? admin.userFirstName + ' ' + admin.userLastName : 'Admin User'}">Admin User</h2>
+                    <p>Administrator</p>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label">Username</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.username : 'admin_user'}">admin_user</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">First Name</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.userFirstName : 'Admin'}">Admin</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Name</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.userLastName : 'User'}">User</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Mobile Number</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.userMobileNumber : '+1 (555) 123-4567'}">+1 (555) 123-4567</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value" data-field="email" th:text="${admin != null ? admin.userEmail : 'admin@example.com'}">admin@example.com</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date of Birth</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.userDob : '20-01-2000'}">20-01-2000</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Gender</span>
+                    <span class="detail-value" th:text="${admin != null ? admin.userGender : 'Male'}">Male</span>
+                </div>
+            </div>
+
+            <button class="edit-profile-btn" id="editProfileBtn">
+                <i class="fas fa-edit"></i> Edit Profile
+            </button>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div class="modal-overlay" id="editProfileModal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Profile</h5>
+                    <button class="close-modal" id="closeEditModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileForm">
+                        <input type="hidden" id="userId" th:value="${admin != null ? admin.userId : ''}">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" class="form-input" th:value="${admin != null ? admin.userEmail : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">New Password</label>
+                            <input type="password" id="password" class="form-input" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password">
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script th:src="@{/resources/js/Admin/AdminProfile.js}"></script>
+</body>
+</html>

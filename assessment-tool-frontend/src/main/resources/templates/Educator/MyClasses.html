@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Educator-specific CSS -->
+    <link th:href="@{/resources/css/Educator/MyClasses.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Side Navigation Structure -->
+            <div class="toggler-area">
+                <button class="menu-toggle" id="mainSidenavToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>            
+            
+            <!-- Sidebar -->
+            <div class="main-sidenav" id="mainSidenav">
+                <div class="d-flex flex-column h-100">
+                    <!-- Header -->
+                    <div class="py-4 text-center">
+                        <h3 class="mb-4">
+                            <i class="fas fa-graduation-cap me-2"></i>Assessment Ally
+                        </h3>
+                    </div>
+                    
+                    <!-- Navigation Menu -->
+                    <div class="flex-grow-1">
+                        <ul class="nav flex-column">
+                            <!-- Dashboard -->
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Educator/Dashboard}">
+                                    <i class="fas fa-home me-2"></i>Dashboard
+                                </a>
+                            </li>
+            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" th:href="@{/Educator/CourseManagement}" id="assessmentManagement"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-book-open icon me-2"></i>Course Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="assessmentManagement">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/CourseManagement}">
+                                        <i class="fas fa-plus-circle me-2"></i>Create Course
+                                    </a></li>
+                                    <li>
+                                        <a class="dropdown-item text-white"
+                                        th:href="@{/Educator/CourseManagement} + '#course-catalog'">
+                                            <i class="fas fa-list me-2"></i>Manage Courses
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+            
+                            <!-- Results & Analytics -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="resultsAnalytics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-2"></i>Student Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="resultsAnalytics">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#manageStudents'">
+                                        <i class="fas fa-table me-2"></i>Manage Students
+                                    </a></li>
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#StudentsPerformance'">
+                                        <i class="fas fa-chart-pie me-2"></i>Performance Analytics
+                                    </a></li>
+                                </ul>
+                            </li>
+                            
+                            <!-- My Classes -->
+                            <li class="nav-item active">
+                                <a class="nav-link text-white active" href="#">
+                                    <i class="fas fa-users me-2"></i>My Classes
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Profile Section -->
+                    <div class="mt-auto py-3 border-top border-secondary">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" id="userProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>
+    					<strong th:text="${userInfo != null ? userInfo.userFirstName + ' ' + userInfo.userLastName : ''}"></strong>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="userProfile">
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Profile</a>
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Account Settings</a>
+                                <a class="dropdown-item" th:href="@{/Educator/Logout}">Sign out</a>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backdrop for mobile -->
+            <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 bg-light main-content" id="main-content">
+                <div class="container-fluid py-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!--  <p th:text="'Your role is: ' + ${session.role}"></p>-->
+                    
+                        <div>
+                           <h1 class="h2 text-dark fw-bold page-header">My Classes</h1>
+                            <p class="text-muted">Manage your courses and student assignments</p>
+                        </div>
+                        <button class="btn btn-primary d-flex align-items-center" onclick="window.location.href='/Educator/CourseManagement'">
+                            <i class="fas fa-plus-circle me-2"></i>Manage Courses
+                        </button>                        
+                    </div>
+
+                    <!-- Top Stats -->
+                    <div class="row mb-4">
+                        <div class="row mb-4">
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="card dashboard-card stat-card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-column">
+                                            <h5 class="card-title text-muted text-uppercase small">Total Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="totalCourses">24</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+5% this month</span>
+                                        </div>
+                                        <i class="fas fa-book-open icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Enrolled Students</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="enrolledStudents">12</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+12% this month</span>
+                                        </div>
+                                        <i class="fas fa-users icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Active Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="activeCourses">18</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+3 this week</span>
+                                        </div>
+                                        <i class="fas fa-clock icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Completed Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="completedCourses">6</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+2 this month</span>
+                                        </div>
+                                        <i class="fas fa-award icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- My Classes Section -->
+					<div class="mb-4 mt-4" id="myClassesSection">
+					    <div class="card-header d-flex justify-content-between align-items-center">
+					        <h5 class="h4 fw-bold text-dark mb-0">Learning Spaces</h5>
+					        <div class="d-flex gap-2 align-items-center">
+					            <input type="text" class="form-control" placeholder="Search classes..." id="classSearch" style="width: 250px;">
+					            <select class="form-select form-select" id="classSort" style="width: 180px;">
+					                <option value="name-asc">Sort by Name (A-Z)</option>
+					                <option value="name-desc">Sort by Name (Z-A)</option>
+					                <option value="students-desc">Sort by Students (High → Low)</option>
+					                <option value="students-asc">Sort by Students (Low → High)</option>
+					            </select>
+					        </div>
+					    </div>
+					    <div class="card-body">
+					        <div class="row" id="classCardsContainer">
+					            <!-- Class cards will be rendered by JS -->
+					        </div>
+					    </div>
+					</div>              
+                    
+                    <!-- Courses Section -->
+                    <div class="mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class=" h4 fw-bold text-dark mb-0">Your Courses</h5>
+                            <div class="input-group" style="width: 300px;">
+                                <input type="text" class="form-control" placeholder="Search courses..." id="courseSearch">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+						    <div class="row" id="coursesContainer">
+						        <!-- Courses will be loaded here -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Management Modal -->
+                    <div class="modal fade" id="studentManagementModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Manage Students for <span id="modalCourseTitle"></span></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Enrolled Students</h6>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="40">
+                                                                        <input type="checkbox" class="form-check-input" id="selectAllEnrolled">
+                                                                    </th>
+                                                                    <th>Student</th>
+                                                                    <th>Email</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="enrolledStudentsList">
+                                                                <!-- Enrolled students will be loaded here -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer bg-white">
+                                                    <button class="btn btn-sm btn-danger" id="removeStudentsBtn">
+                                                        <i class="fas fa-user-minus me-1"></i> Remove Selected
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0">Available Students</h6>
+                                                        <div class="input-group input-group-sm" style="width: 200px;">
+                                                            <input type="text" class="form-control" placeholder="Search..." id="studentSearch">
+                                                            <button class="btn btn-outline-secondary" type="button">
+                                                                <i class="fas fa-search"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="40">
+                                                                        <input type="checkbox" class="form-check-input" id="selectAllAvailable">
+                                                                    </th>
+                                                                    <th>Student</th>
+                                                                    <th>Email</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="availableStudentsList">
+                                                                <!-- Available students will be loaded here -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer bg-white">
+                                                    <button class="btn btn-sm btn-success" id="addStudentsBtn">
+                                                        <i class="fas fa-user-plus me-1"></i> Add Selected
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+            <!-- Toast Notification -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="polite" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check-circle me-2"></i><span id="toastMessage">Success message</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            
+			<!-- Class Details Modal -->
+			<div class="modal fade" id="classDetailsModal" tabindex="-1" aria-labelledby="classDetailsModalLabel" aria-hidden="true">
+			    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+			        <div class="modal-content border-0 shadow-lg">
+			            <div class="modal-header bg-primary text-white">
+			                <h5 class="modal-title fw-semibold" id="classDetailsModalLabel">
+			                    <i class="fas fa-chalkboard-teacher me-2"></i> Class Overview
+			                </h5>
+			                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			            </div>
+			
+			            <div class="modal-body px-4 py-3">
+			                <!-- Course Info -->
+			                <div class="mb-4">
+			                    <h5 id="modalCourseName" class="fw-bold text-primary mb-2"></h5>
+			                    <p class="mb-2"><i class="fas fa-user-tie me-2 text-muted"></i><span id="modalEducator"></span></p>
+			                    <p class="mb-2"><i class="fas fa-calendar-alt me-2 text-muted"></i><span id="modalCourseDates"></span></p>
+			                    <p class="mb-0"><i class="fas fa-users me-2 text-muted"></i><span id="modalStudentCount"></span></p>
+			                </div>
+			
+			
+			                <!-- Students List -->
+			                <div class="card border-light">
+			                    <div class="card-header bg-light fw-semibold">
+			                        Enrolled Students
+			                    </div>
+			                    <div class="card-body p-0">
+			                        <div class="table-responsive">
+			                            <table class="table table-hover align-middle mb-0" id="studentTable">
+			                                <thead class="table-secondary">
+			                                    <tr>
+			                                        <th>#</th>
+			                                        <th>Avatar</th>
+			                                        <th>Name</th>
+			                                        <th>Email</th>
+			                                        <th>Department</th>
+			                                    </tr>
+			                                </thead>
+			                                <tbody id="modalStudentList">
+			                                    <!-- Student rows rendered by JS -->
+			                                </tbody>
+			                            </table>
+			                        </div>
+			                    </div>
+			                </div>
+			                
+			                <!-- Print/Export Controls -->
+			                <div class="d-flex justify-content-end mb-2 gap-2 mt-3">
+			                    <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+			                        <i class="fas fa-print me-1"></i> Print
+			                    </button>
+			                    <button class="btn btn-outline-danger btn-sm" onclick="exportClassToPDF()">
+			                        <i class="fas fa-file-pdf me-1"></i> Export PDF
+			                    </button>
+			                </div>
+			                
+			            </div> <!-- modal-body -->
+			        </div>
+			    </div>
+			</div>
+
+
+            </div>
+        </div>
+    </div>
+  </div>
+  </div>
+  
+  <!-- Add this script block to pass backend data to JavaScript -->
+	<script th:inline="javascript">
+	    /*<![CDATA[*/
+	    const backendCourses = /*[[${courses}]]*/ [];
+	    const backendStudents = /*[[${students}]]*/ [];
+	    const userInfo = /*[[${userInfo}]]*/ [];
+	    /*]]>*/
+	</script>
+    
+    <!-- JavaScript Includes -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Educator-specific JavaScript -->
+    <script th:src="@{/resources/js/Educator/MyClasses.js}"></script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educator Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Educator-specific CSS -->
+    <link th:href="@{/resources/css/Educator/Dashboard.css}" rel="stylesheet">
+    
+    <style>
+        /* Additional styles for improved main section */
+        .welcome-card {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            color: var(--text-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .welcome-card h2 {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .welcome-card .btn-light {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .welcome-card .btn-light:hover {
+            background-color: white;
+            transform: translateY(-2px);
+        }
+        
+        .welcome-card .decoration {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        
+        .analytics-card {
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            box-shadow: var(--box-shadow);
+            height: 100%;
+        }
+        
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .analytics-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .analytics-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .progress-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .progress-pill.positive {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        
+        .progress-pill.negative {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .progress-pill i {
+            margin-right: 0.25rem;
+        }
+        
+        .table-card {
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            box-shadow: var(--box-shadow);
+            height: 100%;
+        }
+        
+        .table-card .table {
+            margin-bottom: 0;
+        }
+        
+        .table-card th {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: none;
+        }
+        
+        .table-card td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+            padding: 1rem 0.75rem;
+        }
+        
+       
+        
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+        
+        .activity-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.blue {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-light);
+        }
+        
+        .activity-icon.orange {
+            background-color: rgba(236, 131, 5, 0.1);
+            color: var(--accent-color);
+        }
+        
+        .activity-icon.green {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        
+        .activity-content {
+            flex-grow: 1;
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Side Navigation Structure -->
+            <div class="toggler-area">
+                <button class="menu-toggle" id="mainSidenavToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>            
+            
+            <!-- Sidebar -->
+            <div class="main-sidenav" id="mainSidenav">
+                <div class="d-flex flex-column h-100">
+                    <!-- Header -->
+                    <div class="py-4 text-center">
+                        <h3 class="mb-4">
+                            <i class="fas fa-graduation-cap me-2"></i>Assessment Ally
+                        </h3>
+                    </div>
+                    
+                    <!-- Navigation Menu -->
+                    <div class="flex-grow-1">
+                        <ul class="nav flex-column">
+                            <!-- Dashboard -->
+                            <li class="nav-item">
+                                <a class="nav-link text-white active" th:href="@{/Educator/Dashboard}">
+                                    <i class="fas fa-home me-2"></i>Dashboard
+                                </a>
+                            </li>
+            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" th:href="@{/Educator/CourseManagement}" id="assessmentManagement"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-book-open icon me-2"></i>Course Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="assessmentManagement">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/CourseManagement}">
+                                        <i class="fas fa-plus-circle me-2"></i>Create Course
+                                    </a></li>
+                                    <li>
+                                        <a class="dropdown-item text-white"
+                                        th:href="@{/Educator/CourseManagement} + '#course-catalog'">
+                                            <i class="fas fa-list me-2"></i>Manage Courses
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+            
+                            <!-- Results & Analytics -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="resultsAnalytics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-chart-bar me-2"></i>Student Management
+                                </a>
+                                <ul class="dropdown-menu bg-secondary" aria-labelledby="resultsAnalytics">
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#manageStudents'">
+                                        <i class="fas fa-table me-2"></i>Manage Students
+                                    </a></li>
+                                    <li><a class="dropdown-item text-white" th:href="@{/Educator/StudentsManagement} + '#StudentsPerformance'">
+                                        <i class="fas fa-chart-pie me-2"></i>Performance Analytics
+                                    </a></li>
+                                </ul>
+                            </li>
+                            
+                            <!-- My Classes -->
+                            <li class="nav-item">
+                                <a class="nav-link text-white" th:href="@{/Educator/MyClasses}">
+                                    <i class="fas fa-users me-2"></i>My Classes
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Profile Section -->
+                    <div class="mt-auto py-3 border-top border-secondary">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle ps-3" id="userProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>
+    					<strong th:text="${userInfo != null ? userInfo.userFirstName + ' ' + userInfo.userLastName : ''}"></strong>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="userProfile">
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Profile</a>
+                                <a class="dropdown-item" th:href="@{/Educator/ProfileManagement}">Account Settings</a>
+                                <a class="dropdown-item" th:href="@{/Educator/Logout}">Sign out</a>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backdrop for mobile -->
+            <div class="sidenav-backdrop" id="sidenavBackdrop"></div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 bg-light main-content" id="main-content">
+                <div class="container-fluid py-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="h2 text-dark fw-bold">Educator's Dashboard</h1>
+                            <p class="text-muted">Manage and track effectively</p>
+                        </div>
+                                             
+                    </div>
+
+                    <!-- Top Stats -->
+                    <div class="row mb-4">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <h5 class="card-title text-muted text-uppercase small">Total Courses</h5>
+                                        <p class="h3 text-dark fw-bold mb-2" id="totalCourses">24</p>
+                                        <span class="badge badge-progress align-self-start mt-2">+5% this month</span>
+                                    </div>
+                                    <i class="fas fa-book-open icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Enrolled Students</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="enrolledStudents">12</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+12% this month</span>
+                                        </div>
+                                        <i class="fas fa-users icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Active Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="activeCourses">18</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+3 this week</span>
+                                        </div>
+                                        <i class="fas fa-clock icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card dashboard-card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <h5 class="card-title text-muted text-uppercase small">Completed Courses</h5>
+                                            <p class="h3 text-dark fw-bold mb-2" id="completedCourses">6</p>
+                                            <span class="badge badge-progress align-self-start mt-2">+2 this month</span>
+                                        </div>
+                                        <i class="fas fa-award icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Improved Main Section -->
+                    <div class="row gx-4 gy-5 mb-4">
+                        <!-- Welcome Card -->
+                        <div class="col-md-8">
+                            <div class="welcome-card p-4 dashboard-card">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h2 class="mb-3">Congratulations! 🎉</h2>
+                                        <p>You have achieved <strong>72%</strong> higher enrollment rate than last semester. Your teaching resources have been viewed by more than 500 students this month.</p>
+                                        <button class="btn btn-light mt-2" th:href="@{/Educator/ProfileManagement}">View Performance</button>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <img src="/resources/Assets/Educator_Icon.jpg" class="img-fluid mt-3 mt-md-0" style="max-width: 150px;">
+                                    </div>
+                                </div>
+                                <div class="decoration"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Educator's Overall Performance Score -->
+<div class="col-md-4">
+    <div class="analytics-card p-4">
+        <div class="analytics-header">
+            <h3>Overall Performance</h3>
+        </div>
+        <div class="text-center">
+            <div style="width: 180px; height: 100px; margin: 0 auto; position: relative;">
+                <svg viewBox="0 0 200 100" width="180" height="100">
+                    <!-- Background arc -->
+                    <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="rgba(67, 97, 238, 0.1)" stroke-width="18"/>
+
+                    <!-- Filled arc: Adjust large-arc-flag (0/1) and endpoint based on percentage -->
+                    <path id="gaugeFill" d="M 10 100 A 90 90 0 0 1 150 22" fill="none" stroke="#4361ee" stroke-width="18" stroke-linecap="round"/>
+
+                    <!-- Center circle -->
+                    <circle cx="100" cy="100" r="4" fill="#4361ee" />
+
+                    <!-- Score text -->
+                    <text x="100" y="80" text-anchor="middle" font-size="18" font-weight="bold" fill="#091057">78%</text>
+                </svg>
+            </div>
+            <p class="mt-3 mb-0 text-muted">Performance Score</p>
+        </div>
+    </div>
+</div>
+                        
+                        <!-- Recent Course Activity -->
+						<div class="col-md-4">
+						    <div class="analytics-card p-4 h-100">
+						        <div class="analytics-header d-flex justify-content-between align-items-center mb-3">
+						            <h3 class="mb-0">Recent Activity</h3>
+						            <a href="#" class="text-decoration-none" style="font-size: 0.8rem;">View All</a>
+						        </div>
+						
+						        <div class="activity-list">
+						            <th:block th:each="course : ${recentCourses}">
+						                <div class="activity-item mb-3">
+						                    <div class="activity-icon blue ms-2">
+						                        <i class="fas fa-book"></i>
+						                    </div>
+						                    <div class="activity-content">
+						                        <div class="activity-title" th:text="${course.courseName}">Course Name</div>
+						                        <div class="activity-time">
+												    Updated • 
+												    <span class="updated-at" th:text="${course.updatedAt}">2025-05-15T09:00:00</span>
+												</div>
+						                    </div>
+						                </div>
+						            </th:block>
+						
+						            <!-- Show message if no recent activity -->
+						            <th:block th:if="${#lists.isEmpty(recentCourses)}">
+						                <div class="activity-item">
+						                    <div class="activity-icon gray">
+						                        <i class="fas fa-info-circle"></i>
+						                    </div>
+						                    <div class="activity-content">
+						                        <div class="activity-title">No recent activity</div>
+						                        <div class="activity-time">Stay tuned for updates</div>
+						                    </div>
+						                </div>
+						            </th:block>
+						        </div>
+						    </div>
+						</div>
+
+                        
+                        <!-- Monthly Revenue Chart -->
+                        <div class="col-md-8">
+                            <div class="analytics-card p-4">
+                                <div class="analytics-header">
+                                    <h3>Monthly Engagement</h3>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-secondary active">2024</button>
+                                        <button class="btn btn-sm btn-outline-secondary">2023</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <svg width="100%" height="100%" viewBox="0 0 500 180" preserveAspectRatio="none">
+                                        <!-- Grid lines -->
+                                        <line x1="0" y1="180" x2="500" y2="180" stroke="#f0f0f0" stroke-width="1"/>
+                                        <line x1="0" y1="135" x2="500" y2="135" stroke="#f0f0f0" stroke-width="1"/>
+                                        <line x1="0" y1="90" x2="500" y2="90" stroke="#f0f0f0" stroke-width="1"/>
+                                        <line x1="0" y1="45" x2="500" y2="45" stroke="#f0f0f0" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="500" y2="0" stroke="#f0f0f0" stroke-width="1"/>
+                                        
+                                        <!-- 2023 line -->
+                                        <path d="M0,120 L83.3,100 L166.6,110 L250,60 L333.3,40 L416.6,70 L500,30" fill="none" stroke="#4361ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="0" cy="120" r="4" fill="#4361ee"/>
+                                        <circle cx="83.3" cy="100" r="4" fill="#4361ee"/>
+                                        <circle cx="166.6" cy="110" r="4" fill="#4361ee"/>
+                                        <circle cx="250" cy="60" r="4" fill="#4361ee"/>
+                                        <circle cx="333.3" cy="40" r="4" fill="#4361ee"/>
+                                        <circle cx="416.6" cy="70" r="4" fill="#4361ee"/>
+                                        <circle cx="500" cy="30" r="4" fill="#4361ee"/>
+                                        
+                                        <!-- 2022 line (lighter) -->
+                                        <path d="M0,150 L83.3,130 L166.6,145 L250,115 L333.3,90 L416.6,120 L500,100" fill="none" stroke="rgba(67, 97, 238, 0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,5"/>
+                                    </svg>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between px-4 mt-2">
+                                    <span class="text-muted" style="font-size: 0.8rem;">Jan</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">Feb</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">Mar</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">Apr</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">May</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">Jun</span>
+                                    <span class="text-muted" style="font-size: 0.8rem;">Jul</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Performing Courses -->
+                        <div class="col-md-8">
+                            <div class="table-card p-4">
+                                <div class="analytics-header mb-3">
+                                    <h3>Top Performing Courses</h3>
+                                    <a href="#" class="text-decoration-none" style="font-size: 0.8rem;">View All</a>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+									    <thead>
+									        <tr>
+									            <th>Course</th>
+									            <th>Students</th>
+									            <th>Completion</th>
+									            <th>Score</th>
+									        </tr>
+									    </thead>
+									    <tbody id="topCoursesBody">
+									        <!-- Filled by JS -->
+									    </tbody>
+									</table>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Student Demographics -->
+                        <div class="col-md-4">
+                            <div class="analytics-card p-4 h-100">
+                                <div class="analytics-header">
+                                    <h3>Student Demographics</h3>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                                    <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">By Age</a></li>
+                                            <li><a class="dropdown-item" href="#">By Location</a></li>
+                                            <li><a class="dropdown-item" href="#">By Education</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <svg width="100%" height="100%" viewBox="0 0 200 200" class="pie-chart">
+                                        <!-- Pie chart slices -->
+                                        <path d="M100,100 L100,0 A100,100 0 0,1 170,30 Z" fill="#4361ee"/>
+                                        <path d="M100,100 L170,30 A100,100 0 0,1 200,100 Z" fill="#3a0ca3"/>
+                                        <path d="M100,100 L200,100 A100,100 0 0,1 170,170 Z" fill="#7209b7"/>
+                                        <path d="M100,100 L170,170 A100,100 0 0,1 100,200 Z" fill="#f72585"/>
+                                        <path d="M100,100 L100,200 A100,100 0 0,1 30,170 Z" fill="#4cc9f0"/>
+                                        <path d="M100,100 L30,170 A100,100 0 0,1 0,100 Z" fill="#4895ef"/>
+                                        <path d="M100,100 L0,100 A100,100 0 0,1 30,30 Z" fill="#560bad"/>
+                                        <path d="M100,100 L30,30 A100,100 0 0,1 100,0 Z" fill="#b5179e"/>
+                                        
+                                        <!-- Center circle -->
+                                        <circle cx="100" cy="100" r="40" fill="white"/>
+                                    </svg>
+                                </div>
+                                
+                                <div class="d-flex flex-wrap justify-content-center mt-3">
+                                    <div class="d-flex align-items-center me-3 mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #4361ee; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">18-24</span>
+                                    </div>
+                                    <div class="d-flex align-items-center me-3 mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #3a0ca3; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">25-34</span>
+                                    </div>
+                                    <div class="d-flex align-items-center me-3 mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #7209b7; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">35-44</span>
+                                    </div>
+                                    <div class="d-flex align-items-center me-3 mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #f72585; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">45-54</span>
+                                    </div>
+                                    <div class="d-flex align-items-center me-3 mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #4cc9f0; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">55-64</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-2" style="width: 12px; height: 12px; background-color: #560bad; border-radius: 2px;"></div>
+                                        <span style="font-size: 0.7rem;">65+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Student Performance -->
+                       <!-- Student Assessment Analysis -->
+						<div class="col-md-6">
+						    <div class="analytics-card p-4 h-100">
+						        <div class="analytics-header d-flex justify-content-between align-items-center">
+						            <h3>Student Performance</h3>
+						            <select id="studentSelect" class="form-select form-select-sm w-auto">
+						                <option selected disabled>Select Student</option>
+						                <option value="john">John Smith</option>
+						                <option value="sarah">Sarah Johnson</option>
+						                <option value="michael">Michael Brown</option>
+						            </select>
+						        </div>
+						        <div class="chart-container" style="height: 260px;">
+						            <canvas id="studentPerformanceChart"></canvas>
+						        </div>
+						    </div>
+						</div>
+
+
+						<!-- Class Participation Breakdown -->
+						<div class="col-md-6">
+						    <div class="analytics-card p-4 h-100">
+						        <div class="analytics-header d-flex justify-content-between align-items-center">
+						            <h3>Class Participation</h3>
+						            <select id="classSelect" class="form-select form-select-sm w-auto">
+						                <option selected disabled>Select Class</option>
+						                <option value="classA">Class A</option>
+						                <option value="classB">Class B</option>
+						                <option value="classC">Class C</option>
+						            </select>
+						        </div>
+						        <div class="chart-container" style="height: 260px;">
+						            <canvas id="classParticipationChart"></canvas>
+						        </div>
+						    </div>
+						</div>  
+						
+                    </div>
+                  </div>
+                </div>
+              </div>
+                   
+                    
+                     <!-- Add this script block to pass backend data to JavaScript -->
+	<script th:inline="javascript">
+	    /*<![CDATA[*/
+	    const backendCourses = /*[[${courses}]]*/ [];
+	    const backendStudents = /*[[${students}]]*/ [];
+	    const userInfo = /*[[${userInfo}]]*/ [];
+	    /*]]>*/
+	    
+      document.addEventListener("DOMContentLoaded", function () {
+        const items = document.querySelectorAll(".updated-at");
+
+        items.forEach(function (el) {
+            const updatedTimeStr = el.textContent.trim();
+            if (!updatedTimeStr) return;
+
+            const updatedTime = new Date(updatedTimeStr);
+            const now = new Date();
+            const diffMs = now - updatedTime;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+            if (diffHours < 1) {
+                el.textContent = "Just now";
+            } else if (diffHours === 1) {
+                el.textContent = "1 hour ago";
+            } else {
+                el.textContent = `${diffHours} hours ago`;
+            }
+        });
+    });
+	    
+	</script>
+    
+    <!-- JavaScript Includes -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+ <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Educator-specific JavaScript -->
+    <script th:src="@{/resources/js/Educator/Dashboard.js}"></script>
+</body>
+</html>

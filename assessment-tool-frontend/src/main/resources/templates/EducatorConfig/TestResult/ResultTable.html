@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<!-- TinyMCE script -->
+<script
+	src="https://cdn.tiny.cloud/1/q974vam9phu3qfp0bqotd2z9kqnvy45rfihy9w1kp0rjw4s0/tinymce/6/tinymce.min.js"
+	referrerpolicy="origin"></script>
+
+
+<!-- Bootstrap Datepicker CSS -->
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+<!-- Include jQuery (required for Bootstrap Datepicker) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap Datepicker JS -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+	rel="stylesheet">
+<!-- Bootstrap Icons -->
+
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.css">
+
+<!-- CSS -->
+<link rel="stylesheet"
+	th:href="@{/resources/css/EducatorConfig/TestResult/ResultTable.css}">
+</head>
+
+<body>
+
+	<!-- Header - Start -->
+	<div class="header d-flex align-items-center">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 d-flex align-items-center">
+					<button class="btn btn-dashboard d-flex align-items-center me-3">
+						<i class="bi bi-speedometer2 me-2"></i> <a
+							th:href="@{/EducatorConfig/TestDashboard}"><span>Dashboard</span></a>
+					</button>
+					<h6 class="mb-0 fw-semibold">New test</h6>
+				</div>
+				<div class="col-md-6 text-end">
+					<button
+						class="btn btn-test-info d-flex align-items-center ms-auto me-3">
+						<i class="bi bi-info-circle me-2"></i> <a
+							th:href="@{/EducatorConfig/TestConfiguration/TestInfo}"><span
+							class="text-muted">Test info</span></a>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Header - End -->
+
+
+	<!-- Full-Container - Start -->
+	<div class="container-fluid">
+		<div class="row g-0">
+			<!-- Sidebar - Start-->
+			<div class="col-md-3 col-lg-3 sidebar pt-3">
+				<div class="ps-3 pe-3">
+					<span class="setup-badge d-inline-block mb-3">SETUP IN
+						PROGRESS</span>
+
+					<!-- Test configuration - Start-->
+					<div
+						class="d-flex justify-content-between align-items-center sidebar-section-header">
+						<h5 class="mb-0">Test configuration</h5>
+						<i class="bi bi-chevron-up text-muted toggle-icon"></i>
+					</div>
+
+					<div class="progress-section mt-3 mb-3">
+						<span>83% completed</span>
+						<div class="progress-container flex-grow-1">
+							<div class="progress-bar" style="width: 83%"></div>
+						</div>
+					</div>
+
+					<!-- Test configuration Items - Start-->
+					<div class="sidebar-navigation mt-4 collapsible-section">
+						<a th:href="@{/EducatorConfig/TestConfiguration/BasicSettings}"
+							class="sidebar-link"> <i class="bi bi-gear"></i> <span>Basic
+								settings</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/QuestionManager}"
+							class="sidebar-link"> <i class="bi bi-list-check"></i> <span>Questions
+								manager</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TestSets}"
+							class="sidebar-link"> <i class="bi bi-collection"></i> <span>Test
+								sets</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TestStartPage}"
+							class="sidebar-link"> <i class="bi bi-file-text"></i> <span>Test
+								start page</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/GradingSummary}"
+							class="sidebar-link"> <i class="bi bi-trophy"></i> <span>Grading
+								& summary</span>
+						</a> <a th:href="@{/EducatorConfig/TestConfiguration/TimeSettings}"
+							class="sidebar-link"> <i class="bi bi-clock"></i> <span>Time
+								settings</span>
+						</a>
+					</div>
+					<!-- Test configuration Items - End-->
+
+
+					<button class="btn btn-activate w-100 mt-3">
+						<i class="bi bi-play-fill"></i> Activate test
+					</button>
+
+
+					<!-- Test configuration - End-->
+
+
+
+					<div class="horizontal-divider mt-4"></div>
+
+					<!-- Test progress & results - Start-->
+					<div
+						class="d-flex justify-content-between align-items-center mt-3 sidebar-section-header">
+						<h5 class="mb-0">Test progress & results</h5>
+						<i class="bi bi-chevron-down text-muted toggle-icon"></i>
+					</div>
+
+					<!-- Test progress & results Items - Start-->
+					<div class="sidebar-navigation mt-3 collapsible-section collapsed">
+						<a th:href="@{/EducatorConfig/TestResult/ResultTable}"
+							class="sidebar-link active"> <i class="bi bi-bar-chart"></i> <span>Results
+								table</span>
+						</a>
+
+						<!-- <a href="#" class="sidebar-link">
+        				<i class="bi bi-file-earmark-check"></i>
+       					 <span>Test sheets review</span>
+   						 </a> -->
+
+						<a th:href="@{/EducatorConfig/TestResult/AssessmentReview}"
+							class="sidebar-link"> <i class="bi bi-check-square"></i> <span>Answers
+								review</span>
+						</a>
+
+						<!-- <a href="#" class="sidebar-link">
+        				<i class="bi bi-graph-up"></i>
+        				<span>Statistics</span>
+    					</a> -->
+					</div>
+					<!-- Test progress & results Items - End-->
+
+
+					<div class="horizontal-divider mt-4"></div>
+					<!-- Test progress & results - End-->
+
+				</div>
+			</div>
+			<!-- Sidebar - End-->
+
+
+
+			<!-- Main Content - Start -->
+			<div class="col-md-9 col-lg-9 main-content">
+				<h5 class="mb-4">Results table</h5>
+
+				<!-- Main Content Items - Start -->
+				<div class="card mb-4">
+					<!-- Results Header Stats - Start -->
+					<div class="results-header d-flex align-items-center">
+						<div class="date-filter d-flex align-items-center">
+							<div class="date-icon me-2">
+								<i class="bi bi-calendar3"></i>
+							</div>
+							<span class="filter-label me-2">Filter by:</span>
+							<div class="dropdown">
+								<button class="btn dropdown-toggle date-value p-0" type="button"
+									id="dateFilterDropdown" data-bs-toggle="dropdown"
+									aria-expanded="false">All dates</button>
+								<ul class="dropdown-menu" aria-labelledby="dateFilterDropdown">
+									<li><a class="dropdown-item active" href="#">All dates</a></li>
+									<li><a class="dropdown-item" href="#">This week</a></li>
+									<li><a class="dropdown-item" href="#">This month</a></li>
+									<li><a class="dropdown-item" href="#">Last month</a></li>
+									<li><a class="dropdown-item" href="#"
+										id="customRangeOption" data-bs-toggle="modal"
+										data-bs-target="#dateRangeModal">Custom range</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="data-info ms-auto">
+							<span class="data-label">Data as of</span> <span
+								class="data-timestamp">2025-04-02 09:33:23</span>
+						</div>
+
+						<div class="vertical-divider"></div>
+
+						<button class="btn refresh-btn">
+							<i class="bi bi-arrow-counterclockwise"></i> <span>Refresh</span>
+						</button>
+					</div>
+					<!-- Results Header Stats - End -->
+				</div>
+
+				<!-- Results Table Container - Start -->
+				<div class="card mb-4">
+					<div class="card-body p-4">
+						<!-- Test Results Header - Start -->
+						<div class="test-results-header mb-3">
+							<h6 class="text-uppercase fw-semibold small">TEST RESULTS</h6>
+						</div>
+						<!-- Test Results Header - End -->
+
+						<!-- Results Browse Header - Start -->
+						<div class="browse-results-header mb-3">
+							<h5 class="fw-semibold">Browse test results</h5>
+						</div>
+						<!-- Results Browse Header - End -->
+
+						<!-- Results Table Controls - Start -->
+						<div class="results-controls mb-4">
+							<div
+								class="d-flex align-items-center justify-content-between border rounded p-3">
+								<div class="results-count">Results (2)</div>
+
+								<div class="table-actions d-flex">
+									<div class="action-item border-end pe-3 me-3">
+										<a href="#" class="text-decoration-none text-secondary"> <i
+											class="bi bi-upload me-2"></i> <span>Export results</span>
+										</a>
+									</div>
+
+									<div class="action-item">
+										<a href="#" class="text-decoration-none text-secondary"> <i
+											class="bi bi-trash me-2"></i> <span>Delete selected</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Results Table Controls - End -->
+
+						<!-- Results Table - Start -->
+						<div class="results-table-container border rounded">
+							<div class="table-responsive">
+								<table class="table table-borderless mb-0">
+									<thead>
+										<tr class="border-bottom">
+											<th width="40">
+												<div class="form-check d-flex justify-content-center">
+													<input class="form-check-input" type="checkbox"
+														id="checkAll">
+												</div>
+											</th>
+											<th class="sortable-column">LAST NAME <i
+												class="bi bi-arrow-down-up ms-2"></i></th>
+											<th class="sortable-column">FIRST NAME <i
+												class="bi bi-arrow-down-up ms-2"></i></th>
+											<th class="sortable-column">SCORE <i
+												class="bi bi-arrow-down-up ms-2"></i>
+											</th>
+											<th class="sortable-column">START DATE <i
+												class="bi bi-arrow-down-up ms-2"></i></th>
+											<th class="sortable-column">END DATE <i
+												class="bi bi-arrow-down-up ms-2"></i></th>
+											<th>TIME</th>
+											<th>PASSED</th>
+											<th>DATE</th>
+										</tr>
+										<tr class="filters border-bottom">
+											<td></td>
+											<td><input type="text" class="form-control-borderless"
+												placeholder="Filter"></td>
+											<td><input type="text" class="form-control-borderless"
+												placeholder="Filter"></td>
+											<td></td>
+											<td><input type="text" class="form-control-borderless"
+												placeholder="Filter"></td>
+											<td><input type="text" class="form-control-borderless"
+												placeholder="Filter"></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</thead>
+									<tbody>
+										<tr class="border-top table-row-clickable">
+											<td>
+												<div class="form-check d-flex justify-content-center">
+													<input class="form-check-input" type="checkbox">
+												</div>
+											</td>
+											<td>Parker</td>
+											<td>Peter</td>
+											<td>
+												<div class="score-badge pending-grade">
+													<span>Pending</span> <span class="score-details">(Manual
+														grading)</span>
+												</div>
+											</td>
+											<td>2025-03-28<br>14:58
+											</td>
+											<td>2025-03-28<br>14:58
+											</td>
+											<td>00:34</td>
+											<td>-</td>
+											<td>1</td>
+											<td class="row-action-cell"><i
+												class="bi bi-chevron-right"></i></td>
+										</tr>
+										<tr class="border-top table-row-clickable">
+											<td>
+												<div class="form-check d-flex justify-content-center">
+													<input class="form-check-input" type="checkbox">
+												</div>
+											</td>
+											<td>S</td>
+											<td>Vivek</td>
+											<td>
+												<div class="score-badge completed-grade">
+													<span>85%</span> <span class="score-details">(8.5/10)</span>
+												</div>
+											</td>
+											<td>2025-03-28<br>14:56
+											</td>
+											<td>2025-03-28<br>14:57
+											</td>
+											<td>00:40</td>
+											<td>-</td>
+											<td>1</td>
+											<td class="row-action-cell"><i
+												class="bi bi-chevron-right"></i></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<!-- Table Footer Actions - Start -->
+							<div
+								class="table-footer-actions p-3 d-flex flex-wrap align-items-center border-top">
+								<div
+									class="pagination-controls ms-auto d-flex flex-wrap align-items-center">
+									<div class="results-per-page d-flex align-items-center me-3">
+										<label class="me-2">Results per page</label>
+										<div class="dropdown">
+											<button
+												class="btn btn-outline-secondary btn-sm dropdown-toggle"
+												type="button" id="resultsPerPage" data-bs-toggle="dropdown"
+												aria-expanded="false">20</button>
+											<ul class="dropdown-menu" aria-labelledby="resultsPerPage">
+												<li><a class="dropdown-item" href="#">5</a></li>
+												<li><a class="dropdown-item" href="#">10</a></li>
+												<li><a class="dropdown-item active" href="#">20</a></li>
+												<li><a class="dropdown-item" href="#">50</a></li>
+											</ul>
+										</div>
+									</div>
+
+									<div class="results-count me-3">1 - 2 of 2</div>
+
+									<div class="pagination-buttons">
+										<button class="btn btn-outline-secondary btn-sm me-1" disabled>
+											<i class="bi bi-chevron-double-left"></i>
+										</button>
+										<button class="btn btn-outline-secondary btn-sm me-1" disabled>
+											<i class="bi bi-chevron-left"></i>
+										</button>
+										<button class="btn btn-primary btn-sm me-1">1</button>
+										<button class="btn btn-outline-secondary btn-sm me-1" disabled>
+											<i class="bi bi-chevron-right"></i>
+										</button>
+										<button class="btn btn-outline-secondary btn-sm" disabled>
+											<i class="bi bi-chevron-double-right"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							<!-- Table Footer Actions - End -->
+						</div>
+						<!-- Results Table - End -->
+					</div>
+				</div>
+				<!-- Results Table Container - End -->
+			</div>
+			<!-- Main Content - End -->
+
+			<!-- Date Range Picker Modal - Start -->
+			<div class="modal fade" id="dateRangeModal" tabindex="-1"
+				aria-labelledby="dateRangeModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="dateRangeModalLabel">Select Date
+								Range</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body p-0">
+							<!-- Calendar Container - Start -->
+							<div class="container py-5">
+								<div class="date-range-picker mx-auto">
+									<!-- Date inputs -->
+									<div class="row mb-3">
+										<div class="col-md-6">
+											<label for="startDateInput" class="form-label">Start
+												Date</label>
+											<div class="input-group">
+												<span class="input-group-text"><i
+													class="bi bi-calendar-date"></i></span> <input type="text"
+													class="date-input selected" id="startDateInput"
+													placeholder="YYYY-MM-DD HH:MM" readonly>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<label for="endDateInput" class="form-label">End Date</label>
+											<div class="input-group">
+												<span class="input-group-text"><i
+													class="bi bi-calendar-date"></i></span> <input type="text"
+													class="date-input" id="endDateInput"
+													placeholder="YYYY-MM-DD HH:MM" readonly>
+											</div>
+										</div>
+									</div>
+
+									<!-- Calendars -->
+									<div class="row calendars-row">
+										<div class="col-md-6 calendar-col">
+											<div class="calendar-container">
+												<div class="calendar-header">
+													<button class="btn btn-sm btn-link text-dark"
+														id="prevMonthStart">
+														<i class="bi bi-chevron-left"></i>
+													</button>
+													<div class="month-year-display">
+														<span class="month-display" id="monthStart">March</span> <span
+															class="year-display" id="yearStart">2025</span>
+													</div>
+													<button class="btn btn-sm btn-link text-dark"
+														id="nextMonthStart">
+														<i class="bi bi-chevron-right"></i>
+													</button>
+												</div>
+												<div class="month-year-selector month-selector"
+													id="monthSelectorStart"></div>
+												<div class="month-year-selector year-selector"
+													id="yearSelectorStart"></div>
+												<div class="calendar-weekdays">
+													<div class="weekday">Mo</div>
+													<div class="weekday">Tu</div>
+													<div class="weekday">We</div>
+													<div class="weekday">Th</div>
+													<div class="weekday">Fr</div>
+													<div class="weekday">Sa</div>
+													<div class="weekday">Su</div>
+												</div>
+												<div class="calendar-days" id="calendarDaysStart"></div>
+											</div>
+											<div class="time-picker">
+												<div class="time-section">
+													<input type="text" id="hourInputStart" class="time-input"
+														value="09" maxlength="2"> <span class="time-label">Hours</span>
+												</div>
+												<span class="time-separator">:</span>
+												<div class="time-section">
+													<input type="text" id="minuteInputStart" class="time-input"
+														value="32" maxlength="2"> <span class="time-label">Minutes</span>
+												</div>
+												<div class="slider-container">
+													<input type="range" id="hourSliderStart" min="0" max="23"
+														value="9" class="form-range"> <span
+														class="time-label">Hours</span>
+												</div>
+												<div class="slider-container">
+													<input type="range" id="minuteSliderStart" min="0" max="59"
+														value="32" class="form-range"> <span
+														class="time-label">Minutes</span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6 calendar-col">
+											<div class="calendar-container">
+												<div class="calendar-header">
+													<button class="btn btn-sm btn-link text-dark"
+														id="prevMonthEnd">
+														<i class="bi bi-chevron-left"></i>
+													</button>
+													<div class="month-year-display">
+														<span class="month-display" id="monthEnd">April</span> <span
+															class="year-display" id="yearEnd">2025</span>
+													</div>
+													<button class="btn btn-sm btn-link text-dark"
+														id="nextMonthEnd">
+														<i class="bi bi-chevron-right"></i>
+													</button>
+												</div>
+												<div class="month-year-selector month-selector"
+													id="monthSelectorEnd"></div>
+												<div class="month-year-selector year-selector"
+													id="yearSelectorEnd"></div>
+												<div class="calendar-weekdays">
+													<div class="weekday">Mo</div>
+													<div class="weekday">Tu</div>
+													<div class="weekday">We</div>
+													<div class="weekday">Th</div>
+													<div class="weekday">Fr</div>
+													<div class="weekday">Sa</div>
+													<div class="weekday">Su</div>
+												</div>
+												<div class="calendar-days" id="calendarDaysEnd"></div>
+											</div>
+											<div class="time-picker">
+												<div class="time-section">
+													<input type="text" id="hourInputEnd" class="time-input"
+														value="09" maxlength="2"> <span class="time-label">Hours</span>
+												</div>
+												<span class="time-separator">:</span>
+												<div class="time-section">
+													<input type="text" id="minuteInputEnd" class="time-input"
+														value="32" maxlength="2"> <span class="time-label">Minutes</span>
+												</div>
+												<div class="slider-container">
+													<input type="range" id="hourSliderEnd" min="0" max="23"
+														value="9" class="form-range"> <span
+														class="time-label">Hours</span>
+												</div>
+												<div class="slider-container">
+													<input type="range" id="minuteSliderEnd" min="0" max="59"
+														value="32" class="form-range"> <span
+														class="time-label">Minutes</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- Buttons -->
+									<div class="button-group">
+										<button id="clearBtn"
+											class="btn btn-outline-secondary btn-custom">Clear
+											filter</button>
+										<button id="cancelBtn"
+											class="btn btn-outline-secondary btn-custom"
+											data-bs-dismiss="modal">Cancel</button>
+										<button id="confirmBtn"
+											class="btn btn-success btn-custom btn-custom-primary"
+											data-bs-dismiss="modal">Confirm</button>
+									</div>
+								</div>
+							</div>
+							<!-- Calendar Container - End -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Date Range Picker Modal - End -->
+		</div>
+	</div>
+	<!-- Full-Container - End -->
+
+	<!-- Bootstrap JavaScript Bundle with Popper -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Include jQuery -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+	<!-- Bootstrap JS -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+	<!-- JavaScript -->
+	<script
+		th:src="@{/resources/js/EducatorConfig/TestResult/ResultTable.js}"></script>
+</body>
+
+</html>
