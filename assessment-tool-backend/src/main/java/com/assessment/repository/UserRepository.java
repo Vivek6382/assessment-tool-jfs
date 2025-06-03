@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -46,5 +47,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByRole_RoleId(Integer roleId);
 
 	boolean existsByUserEmail(String email);
+	
+	// Count how many students are enrolled in a course
+    @Query("SELECT COUNT(e) FROM CourseEnrollment e WHERE e.course.id = :courseId")
+    long countStudentsByCourseId(@Param("courseId") Integer courseId);
 
+    // Find all students in a course (optional for dropdown population)
+    @Query("SELECT e.student FROM CourseEnrollment e WHERE e.course.id = :courseId")
+    List<User> findStudentsByCourseId(@Param("courseId") Long courseId);
 }

@@ -3,10 +3,10 @@ package com.assessment.controller;
 import com.assessment.dto.AssessmentDTO;
 import com.assessment.model.Assessment;
 import com.assessment.model.Module;
-import com.assessment.model.Question;
+//import com.assessment.model.Question;
 import com.assessment.service.AssessmentService;
 import com.assessment.service.ModuleService;
-import com.assessment.service.QuestionService;
+//import com.assessment.service.QuestionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +30,8 @@ public class AssessmentController {
     private ModuleService moduleService;
     
     
-    @Autowired
-    private QuestionService questionService;
+//    @Autowired
+//    private QuestionService questionService;
     
     /**
      * Get all assessments

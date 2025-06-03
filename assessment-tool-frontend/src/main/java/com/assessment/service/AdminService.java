@@ -333,4 +333,6 @@ public class AdminService {
             return result;
         }
     }
+    
+    // Dashboard methods
 }

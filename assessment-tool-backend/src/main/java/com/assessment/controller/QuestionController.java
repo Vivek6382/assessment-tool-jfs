@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.assessment.dto.QuestionCreateDTO;
 import com.assessment.dto.QuestionWithOptionsDTO;
 import com.assessment.model.Question;
-import com.assessment.model.QuestionOption;
+//import com.assessment.model.QuestionOption;
 import com.assessment.model.QuestionType;
 import com.assessment.service.QuestionService;
 
