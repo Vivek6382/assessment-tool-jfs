@@ -23,6 +23,4 @@ public interface ResponseRepository extends JpaRepository<Response, Integer> {
     List<Response> findByStudentIdAndAssessmentId(@Param("studentId") Integer studentId, @Param("assessmentId") Integer assessmentId);
 
 	List<Response> findByStudentUserIdAndQuestionAssessmentAssessmentId(Integer studentId, Integer assessmentId);
-	
-	List<Response> findByQuestion_QuestionId(Integer questionId);
 }

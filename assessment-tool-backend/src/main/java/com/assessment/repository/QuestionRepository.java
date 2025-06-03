@@ -25,4 +25,6 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Query("SELECT COALESCE(SUM(q.questionMarks), 0) FROM Question q WHERE q.assessment.assessmentId = :assessmentId")
     Integer calculateTotalMarksByAssessmentId(@Param("assessmentId") Integer assessmentId);
     
+    
+    
 }

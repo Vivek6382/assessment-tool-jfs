@@ -19,7 +19,4 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Integer>
     List<Assessment> findByAssessmentTitle(String title);
     
     List<Assessment> findByModule_ModuleId(Integer moduleId);
-    
-    @Query("SELECT a FROM Assessment a WHERE a.module.course.id = :courseId")
-    List<Assessment> findByCourseId(@Param("courseId") Long courseId);
 }

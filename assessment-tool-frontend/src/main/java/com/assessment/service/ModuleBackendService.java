@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-//import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Service
 public class ModuleBackendService {

@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.assessment.service.AssessmentService;
 
-//import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-//import java.net.URLEncoder;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/EducatorConfig")
@@ -32,13 +32,28 @@ public class EducatorConfigController {
     // Basic Settings
     @GetMapping("/TestConfiguration/BasicSettings")
     public String showBasicSettings(Model model, HttpSession session,
-            @RequestParam(required = false) Integer assessmentId) {
+            @RequestParam(required = false) Integer assessmentId,
+            HttpServletRequest request) {
         
-        // Clear session when no assessmentId is provided (new test clicked)
-        if (assessmentId == null) {
+        // Check if this is a direct "New Test" click (no assessmentId and referer is dashboard)
+        boolean isNewTestClick = assessmentId == null && 
+                               request.getHeader("referer") != null && 
+                               request.getHeader("referer").contains("/EducatorConfig/TestDashboard");
+        
+        // Clear session when it's a new test click
+        if (isNewTestClick) {
             session.removeAttribute("currentAssessmentId");
             model.addAttribute("isNewAssessment", true);
             model.addAttribute("assessment", createDefaultAssessment());
+            
+            // Load modules for dropdown
+            Map<String, Object> modulesResponse = assessmentService.getAllAssessmentModules();
+            if (modulesResponse.containsKey("success") && (boolean)modulesResponse.get("success")) {
+                model.addAttribute("modules", modulesResponse.get("data"));
+            } else {
+                model.addAttribute("modules", Collections.emptyList());
+            }
+            
             return "EducatorConfig/TestConfiguration/BasicSettings";
         }
         
@@ -61,6 +76,8 @@ public class EducatorConfigController {
                 session.removeAttribute("currentAssessmentId");
                 assessment = createDefaultAssessment();
                 isNewAssessment = true;
+            } else {
+                isNewAssessment = false;
             }
         } else {
             // Set default values for new assessment
@@ -633,13 +650,18 @@ public class EducatorConfigController {
                 
                 // For each assessment, ensure module data is properly structured
                 for (Map<String, Object> assessment : assessments) {
-                    if (assessment.containsKey("moduleId") && assessment.get("moduleId") != null) {
-                        // Create a proper module map structure
-                        Map<String, Object> module = new HashMap<>();
-                        module.put("moduleId", assessment.get("moduleId"));
-                        module.put("moduleName", assessment.get("moduleName"));
-                        assessment.put("module", module);
+                    // Check for moduleId at root level first
+                    if (!assessment.containsKey("moduleId") && assessment.containsKey("module")) {
+                        // If moduleId isn't at root but module object exists, extract it
+                        Map<String, Object> module = (Map<String, Object>) assessment.get("module");
+                        if (module != null) {
+                            assessment.put("moduleId", module.get("moduleId"));
+                            assessment.put("moduleName", module.get("moduleName"));
+                        }
                     }
+                    // Ensure moduleId exists even if null
+                    assessment.putIfAbsent("moduleId", null);
+                    assessment.putIfAbsent("moduleName", null);
                 }
                 
                 model.addAttribute("assessments", assessments);

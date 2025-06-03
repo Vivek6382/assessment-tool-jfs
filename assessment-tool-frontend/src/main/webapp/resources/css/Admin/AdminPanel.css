@@ -317,9 +317,57 @@ body {
   transform: translateY(-1px);
 }
 
-.pagination-container {
+.download-button-dark {
+  background-color: var(--white);
+  color: var(--dark-color);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
   display: flex;
   align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.download-button-dark i {
+  margin-right: 8px;
+  color: var(--primary-color);
+}
+
+.download-button-dark:hover {
+  background-color: var(--light-gray);
+  transform: translateY(-1px);
+}
+
+.download-button-light {
+  background-color: var(--white);
+  color: var(--dark-color);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.download-button-light i {
+  margin-right: 8px;
+  color: var(--primary-color);
+}
+
+.download-button-light:hover {
+  background-color: var(--light-gray);
+  transform: translateY(-1px);
+}
+
+.pagination-container {
+  display: flex;
+  /* justify-content: center; */ /* Now handled by parent flex container */
+  align-items: center;
+  /* margin-top: 20px; */ /* Removed margin-top, handled by parent container */
   gap: 10px;
 }
 

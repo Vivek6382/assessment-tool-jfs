@@ -415,6 +415,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return selectedIds
   }
 
+  // Sort button functionality
+  /*const sortButtons = document.querySelectorAll(".sort-button")
+  sortButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      alert("Sort functionality will be implemented here")
+    })
+  })*/
+
+  // Download report functionality
+  const downloadButtons = document.querySelectorAll(".download-button-light")
+  downloadButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      alert("Downloading report...")
+    })
+  })
+
   // Add user button functionality
   const addUserBtn = document.getElementById("addUserBtn")
   if (addUserBtn) {
