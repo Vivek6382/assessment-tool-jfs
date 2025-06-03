@@ -1,7 +1,6 @@
 package com.assessment.dto;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class CourseDTO {
     private Integer courseId;
@@ -11,14 +10,14 @@ public class CourseDTO {
     private LocalDateTime courseEndDate;
 	
 	
-	public String getCourseStartDate() {
-		return courseStartDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+	public LocalDateTime getCourseStartDate() {
+		return courseStartDate;
 	}
 	public void setCourseStartDate(LocalDateTime courseStartDate) {
 		this.courseStartDate = courseStartDate;
 	}
-	public String getCourseEndDate() {
-		return courseEndDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+	public LocalDateTime getCourseEndDate() {
+		return courseEndDate;
 	}
 	public void setCourseEndDate(LocalDateTime courseEndDate) {
 		this.courseEndDate = courseEndDate;

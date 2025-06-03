@@ -5,7 +5,7 @@ import com.assessment.dto.CoursesDTO;
 import com.assessment.dto.ModuleDTO;
 import com.assessment.exception.CourseServiceException;
 import com.assessment.model.Course;
-//import com.assessment.model.User;
+import com.assessment.model.User;
 import com.assessment.repository.CourseRepository;
 import com.assessment.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import com.assessment.model.Module;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.Optional;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

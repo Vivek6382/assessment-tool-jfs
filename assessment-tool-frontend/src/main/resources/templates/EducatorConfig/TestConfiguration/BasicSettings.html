@@ -16,7 +16,7 @@
 
 <!-- TinyMCE script -->
 <script
-	src="https://cdn.tiny.cloud/1/3iyjrh3pbjbo2uez42qp8alnjuphiy0zzcwhgc3bv86qcon6/tinymce/6/tinymce.min.js"
+	src="https://cdn.tiny.cloud/1/q974vam9phu3qfp0bqotd2z9kqnvy45rfihy9w1kp0rjw4s0/tinymce/6/tinymce.min.js"
 	referrerpolicy="origin"></script>
 
 <!-- CSS -->
@@ -26,11 +26,19 @@
 </head>
 
 <!-- Change the opening body tag to this: -->
-<body th:attr="data-assessment-id=${session.currentAssessmentId}, data-assessment-status=${assessment?.assessmentStatus ?: 'draft'}">
+<body
+	th:attr="data-assessment-id=${session.currentAssessmentId}, data-assessment-status=${assessment?.assessmentStatus ?: 'draft'}">
 
-<!-- Add these hidden inputs as backups -->
-<input type="hidden" id="hiddenAssessmentId" th:value="${session.currentAssessmentId}">
-<input type="hidden" id="hiddenAssessmentStatus" th:value="${assessment?.assessmentStatus ?: 'draft'}">
+	<!-- Add these hidden inputs as backups -->
+	<!-- Add these hidden inputs in your BasicSettings.html -->
+	<input type="hidden" id="hiddenAssessmentId"
+		th:value="${session.currentAssessmentId}">
+	<input type="hidden" id="hiddenAssessmentStatus"
+		th:value="${assessment?.assessmentStatus ?: 'draft'}">
+	<input type="hidden" id="is-new-assessment"
+		th:value="${isNewAssessment}">
+	<input type="hidden" id="assessment-id"
+		th:value="${session.currentAssessmentId}" />
 
 	<!-- Header - Start -->
 	<div class="header d-flex align-items-center">
@@ -65,7 +73,8 @@
 			<!-- Sidebar - Start-->
 			<div class="col-md-3 col-lg-3 sidebar pt-3">
 				<div class="ps-3 pe-3">
-					<span class="setup-badge d-inline-block mb-3">SETUP IN
+					<!-- Change this line in your HTML -->
+					<span class="setup-badge draft d-inline-block mb-3">SETUP IN
 						PROGRESS</span>
 
 					<!-- Test configuration - Start-->
@@ -91,8 +100,8 @@
 						<!-- Links will be disabled if no assessment is created yet -->
 						<a
 							th:href="@{/EducatorConfig/TestConfiguration/QuestionDashboard}"
-							class="sidebar-link active"> <i class="bi bi-list-check"></i>
-							<span>Questions manager</span>
+							class="sidebar-link"> <i class="bi bi-list-check"></i> <span>Questions
+								manager</span>
 						</a> <a
 							th:href="${session.currentAssessmentId != null ? '/EducatorConfig/TestConfiguration/TestSets' : '#'}"
 							class="sidebar-link"
@@ -118,10 +127,10 @@
 					<!-- Test configuration Items - End-->
 
 
-					
-                    <button class="btn btn-activate w-100 mt-3">
-                        <i class="bi bi-play-fill"></i> Activate test
-                    </button>
+
+					<button class="btn btn-activate w-100 mt-3">
+						<i class="bi bi-play-fill"></i> Activate test
+					</button>
 
 
 					<!-- Test configuration - End-->
@@ -167,7 +176,7 @@
 			<!-- Main Content - Start -->
 			<div class="col-md-9 col-lg-9 main-content">
 				<!-- Basic Settings Header -->
-				<div class="initial-settings-header mb-4">BASIC SETTINGS</div>
+				<div class="section-header mb-4">Basic Settings</div>
 
 				<!-- Main Content Items - Start -->
 				<div class="card mb-4">

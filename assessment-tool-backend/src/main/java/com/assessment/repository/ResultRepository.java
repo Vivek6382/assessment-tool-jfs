@@ -5,7 +5,6 @@ import com.assessment.model.Result;
 import com.assessment.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,14 +45,4 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
     // Find top performers (highest percentage) for a specific assessment
     @Query("SELECT r FROM Result r WHERE r.assessment.assessmentId = ?1 ORDER BY r.resultPercentage DESC")
     List<Result> findTopPerformersByAssessmentId(Integer assessmentId);
-    
-    List<Result> findByAssessment_AssessmentId(Integer assessmentId);
-
-    // This will be used for a single student's result in an assessment
-    //Result findByAssessment_AssessmentIdAndStudent_UserId(Integer assessmentId, Integer userId);
-    
-    // Student Progress analytics
-    @Query("SELECT r FROM Result r WHERE r.student.userId = :studentId AND r.assessment.module.course.courseId = :courseId")
-    List<Result> findByStudentIdAndCourseId(@Param("studentId") Integer studentId, @Param("courseId") Long courseId);
-
 }
