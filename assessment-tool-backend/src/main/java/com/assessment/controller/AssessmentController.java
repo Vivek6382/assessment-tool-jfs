@@ -3,7 +3,6 @@ package com.assessment.controller;
 import com.assessment.dto.AssessmentDTO;
 import com.assessment.model.Assessment;
 import com.assessment.model.Module;
-import com.assessment.model.Question;
 import com.assessment.service.AssessmentService;
 import com.assessment.service.ModuleService;
 import com.assessment.service.QuestionService;

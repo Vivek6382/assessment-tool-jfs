@@ -1,10 +1,8 @@
 package com.assessment.controller;
 
 import com.assessment.model.Response;
-import com.assessment.model.User;
 import com.assessment.service.ResponseService;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
