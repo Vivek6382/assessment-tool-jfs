@@ -1354,68 +1354,151 @@ function getStatusClass(status) {
     }
 }
 
+// Global chart instances to prevent duplicates
+window.chartInstances = window.chartInstances || {};
 
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof Chart !== 'undefined') {
         
-        // Educator Engagement (Line Chart)
-        new Chart(document.getElementById('educatorEngagementChart'), {
+        // Function to safely destroy and recreate a chart
+        function createOrUpdateChart(canvasId, chartConfig) {
+            // Destroy existing chart if it exists
+            if (window.chartInstances[canvasId]) {
+                window.chartInstances[canvasId].destroy();
+                delete window.chartInstances[canvasId];
+            }
+            
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) {
+                console.warn(`Canvas element ${canvasId} not found`);
+                return;
+            }
+            
+            // Force canvas to have explicit dimensions to prevent resize loops
+            const container = ctx.parentElement;
+            if (container) {
+                const computedStyle = window.getComputedStyle(container);
+                const containerWidth = parseInt(computedStyle.width);
+                const containerHeight = parseInt(computedStyle.height);
+                
+                if (containerWidth > 0 && containerHeight > 0) {
+                    ctx.width = containerWidth;
+                    ctx.height = containerHeight;
+                }
+            }
+            
+            window.chartInstances[canvasId] = new Chart(ctx, chartConfig);
+        }
+
+        // Educator Engagement Chart
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        // Initialize engagement scores for each month
+        const engagementScores = Array(12).fill(0);
+
+        // Process results to calculate engagement per month based on completedDate
+        if (typeof resultsData !== 'undefined' && Array.isArray(resultsData)) {
+            resultsData.forEach(result => {
+                if (!result.completedDate) return; // safety check
+
+                const date = new Date(result.completedDate);
+                const monthIndex = date.getMonth(); // 0 (Jan) to 11 (Dec)
+
+                // Count completed assessments per month
+                engagementScores[monthIndex] += 1;
+            });
+        } else {
+            console.warn('resultsData is not available or not an array');
+        }
+        
+        createOrUpdateChart('educatorEngagementChart', {
             type: 'line',
             data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                labels: months,
                 datasets: [{
-                    label: 'Engagement Score',
-                    data: [60, 75, 80, 70, 90], // static sample data
-                    fill: false,
-                    borderColor: '#36a2eb',
+                    label: 'Educator Engagement Score',
+                    data: engagementScores,
+                    backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                    borderColor: '#4361ee',
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#4361ee',
+                    fill: true,
                     tension: 0.3
                 }]
             },
             options: {
-                responsive: true,
+                responsive: false, // CRITICAL: Disable responsive to prevent growth
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: 'Engagement Score'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
                     }
-                }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                animation: false // Disable animations completely
             }
         });
 
-		// Overall Performance (Speedometer Style using gauge-like chart)
-		       const overallPerformanceChart = new Chart(document.getElementById('overallPerformanceChart'), {
-		           type: 'doughnut',
-		           data: {
-		               labels: ['Performance', 'Remaining'], // 'Remaining' fills the rest of the doughnut
-		               datasets: [{
-		                   data: [75, 25], // 75% performance, 25% gap
-		                   backgroundColor: ['#4bc0c0', '#eeeeee'], // 75% green, 25% grey
-		                   borderWidth: 0
-		               }]
-		           },
-		           options: {
-		               rotation: -90, // Starts the doughnut from top
-		               circumference: 180, // Only half the doughnut for the gauge look
-		               cutout: '70%', // Inner cut-out to make it look like a speedometer
-		               plugins: {
-		                   tooltip: { enabled: false }, // Disable tooltip
-		                   legend: { display: false }, // Hide legend
-		               },
-		               responsive: true,
-		               animation: {
-		                   animateRotate: true, // Rotating animation for better visualization
-		                   animateScale: true // Scale up for better visual when data changes
-		               }
-		           }
-		       });
+        // Overall Performance Chart
+        createOrUpdateChart('overallPerformanceChart', {
+            type: 'doughnut',
+            data: {
+                labels: ['Performance', 'Remaining'],
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#4bc0c0', '#eeeeee'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                rotation: -90,
+                circumference: 180,
+                cutout: '70%',
+                responsive: false, // CRITICAL: Disable responsive
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: { enabled: false },
+                    legend: { display: false }
+                },
+                animation: false // Disable animations
+            }
+        });
 
-		       // Update percentage dynamically
-		       const percentage = 75; // Example: 75% performance (this would be dynamic based on data)
-		       document.getElementById('performancePercentage').textContent = `${percentage}%`;
+        // Update percentage display
+        const percentageElement = document.getElementById('performancePercentage');
+        if (percentageElement) {
+            percentageElement.textContent = '75%';
+        }
         
-        // Modules Per Course - Bar Chart
+        // Modules Per Course Chart
         if (typeof modulesPerCourse !== 'undefined' && modulesPerCourse.length > 0) {
-            new Chart(document.getElementById('modulesPerCourseChart'), {
+            createOrUpdateChart('modulesPerCourseChart', {
                 type: 'bar',
                 data: {
                     labels: modulesPerCourse.map(c => c.name),
@@ -1426,17 +1509,54 @@ document.addEventListener('DOMContentLoaded', function () {
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: false, // CRITICAL: Disable responsive
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true
                         }
-                    }
+                    },
+                    animation: false // Disable animations
                 }
             });
-        } else {
-            console.warn('modulesPerCourse is undefined or empty.');
         }
+
+        // Handle window resize manually if needed
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                // Manually resize charts if container dimensions changed
+                Object.keys(window.chartInstances).forEach(canvasId => {
+                    const chart = window.chartInstances[canvasId];
+                    const ctx = document.getElementById(canvasId);
+                    if (chart && ctx) {
+                        const container = ctx.parentElement;
+                        if (container) {
+                            const computedStyle = window.getComputedStyle(container);
+                            const newWidth = parseInt(computedStyle.width);
+                            const newHeight = parseInt(computedStyle.height);
+                            
+                            if (newWidth !== ctx.width || newHeight !== ctx.height) {
+                                ctx.width = newWidth;
+                                ctx.height = newHeight;
+                                chart.resize();
+                            }
+                        }
+                    }
+                });
+            }, 250);
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            Object.keys(window.chartInstances).forEach(canvasId => {
+                if (window.chartInstances[canvasId]) {
+                    window.chartInstances[canvasId].destroy();
+                    delete window.chartInstances[canvasId];
+                }
+            });
+        });
     }
 });
 
@@ -1465,4 +1585,68 @@ document.addEventListener("DOMContentLoaded", function () {
             el.textContent = `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
         }
     });
+});
+
+
+
+// Calculate the educator's performance score
+function calculateEducatorScore() {
+    if (!backendResults || !backendStudents) return 50;
+
+    const totalResults = backendResults.length;
+    const passedResults = backendResults.filter(r => r.resultStatus === 'Passed').length;
+    const passRate = totalResults > 0 ? (passedResults / totalResults) * 100 : 0;
+
+    const totalStudents = backendStudents.length;
+    const activeStudents = new Set(backendResults.map(r => r.studentId)).size;
+    const engagementRate = totalStudents > 0 ? (activeStudents / totalStudents) * 100 : 0;
+
+    const scores = backendResults.filter(r => r.resultPercentage).map(r => r.resultPercentage);
+    const avgPerformance = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+
+    const finalScore = Math.round(
+        (passRate * 0.40) +
+        (engagementRate * 0.35) +
+        (avgPerformance * 0.25)
+    );
+
+    console.log(`Pass Rate: ${passRate}%, Engagement: ${engagementRate}%, Avg Performance: ${avgPerformance}%`);
+    return Math.min(100, Math.max(0, finalScore));
+}
+
+// Update the SVG gauge based on the score
+function updateEducatorGauge() {
+    const score = calculateEducatorScore();
+    const gaugeFill = document.getElementById('gaugeFill');
+    const scoreText = document.querySelector('svg text');
+
+    if (!gaugeFill || !scoreText) return;
+
+    const radius = 90;
+    const centerX = 100;
+    const centerY = 100;
+
+    // Convert score to radians (0% = π, 100% = 0)
+    const angle = (score / 100) * Math.PI;
+
+    const endX = centerX + radius * Math.cos(Math.PI - angle);
+    const endY = centerY - radius * Math.sin(Math.PI - angle);
+
+    const largeArc = score > 90 ? 1 : 0;
+
+    // Update path data
+    gaugeFill.setAttribute('d', `M 10 100 A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}`);
+
+    // Update percentage text
+    scoreText.textContent = `${score}%`;
+
+    // Update color based on score
+    const color = score >= 50 ? '#024CAA' : '#e74c3c';
+    gaugeFill.setAttribute('stroke', color);
+    scoreText.setAttribute('fill', color);
+}
+
+// Initialize the gauge when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updateEducatorGauge();
 });

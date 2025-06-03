@@ -88,14 +88,49 @@ async function populateTopStats() {
     }
 }
 
-// Function to initialize the Weekly Performance Chart (Spline)
 function initWeeklyPerformanceChart() {
     const ctx = document.getElementById('weeklyPerformanceChart').getContext('2d');
 
-    // Simulated dynamic weekly scores from backendCourses
-    const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const currentWeekData = labels.map(() => Math.floor(70 + Math.random() * 15)); // simulated scores
-    const previousWeekData = labels.map(() => Math.floor(65 + Math.random() * 15));
+    const labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentWeekData = new Array(7).fill(0);
+    const currentWeekCounts = new Array(7).fill(0);
+    const previousWeekData = new Array(7).fill(0);
+    const previousWeekCounts = new Array(7).fill(0);
+
+    const now = new Date();
+    const currentWeekStart = new Date(now);
+    currentWeekStart.setDate(now.getDate() - now.getDay()); // Sunday start
+    const previousWeekStart = new Date(currentWeekStart);
+    previousWeekStart.setDate(currentWeekStart.getDate() - 7);
+
+    backendResults.forEach(r => {
+        if (!r.completedDate) return;
+        const completedDate = new Date(r.completedDate);
+        const dayOfWeek = completedDate.getDay();
+
+        if (completedDate >= currentWeekStart) {
+            currentWeekData[dayOfWeek] += r.resultPercentage || 0;
+            currentWeekCounts[dayOfWeek]++;
+        } else if (completedDate >= previousWeekStart) {
+            previousWeekData[dayOfWeek] += r.resultPercentage || 0;
+            previousWeekCounts[dayOfWeek]++;
+        }
+    });
+
+    // Calculate average per day
+    for (let i = 0; i < 7; i++) {
+        if (currentWeekCounts[i] > 0) {
+            currentWeekData[i] = Math.round(currentWeekData[i] / currentWeekCounts[i]);
+        } else {
+			currentWeekData[i] = 0;  // Show 0 instead of null
+        }
+
+        if (previousWeekCounts[i] > 0) {
+            previousWeekData[i] = Math.round(previousWeekData[i] / previousWeekCounts[i]);
+        } else {
+			previousWeekData[i] = 0;
+        }
+    }
 
     return new Chart(ctx, {
         type: 'line',
@@ -125,26 +160,59 @@ function initWeeklyPerformanceChart() {
             plugins: { legend: { position: 'top' } },
             scales: {
                 y: {
-                    beginAtZero: false,
-                    min: 50,
+                    min: 0,
                     max: 100,
-                    title: { display: true, text: 'Score (%)' }
+                    title: { display: true, text: 'Average Score (%)' }
                 }
             }
         }
     });
 }
 
+
+
 // Function to initialize the Performance Overview Chart (Combined Bar and Line)
 function initPerformanceOverviewChart() {
     const ctx = document.getElementById('performanceOverviewChart').getContext('2d');
 
     const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    const assessmentsPerWeek = [0, 0, 0, 0];
+    const studentsAttendedPerWeek = [new Set(), new Set(), new Set(), new Set()]; // Sets for unique student IDs
+    const totalStudents = backendStudents.length;  // Total students count
+    const passRatePerWeek = [0, 0, 0, 0];
 
-    // Simulated analytics (you can map real metrics later)
-    const assessments = [8, 12, 10, 14];
-    const attendance = [92, 89, 94, 90];
-    const passRate = [85, 83, 88, 87];
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    backendResults.forEach(r => {
+        if (!r.completedDate) return;
+        const date = new Date(r.completedDate);
+		// If you want to process all dates regardless of month
+		const daysDiff = Math.floor((date - startOfThisMonth) / (24 * 60 * 60 * 1000));
+		const weekNumber = Math.max(0, Math.min(3, Math.floor(daysDiff / 7)));
+		
+		console.log("R: ", r);
+
+        assessmentsPerWeek[weekNumber]++;
+        if (r.resultStatus === 'Passed') passRatePerWeek[weekNumber]++;
+		
+        studentsAttendedPerWeek[weekNumber].add(r.studentId); // Collect unique studentId
+    });
+
+    // Convert attendance Sets to percentages
+    const attendancePerWeek = studentsAttendedPerWeek.map(set => {
+        const attendanceCount = set.size;
+        return totalStudents > 0 ? Math.round((attendanceCount / totalStudents) * 100) : 0;
+    });
+
+    // Calculate pass rates
+    for (let i = 0; i < 4; i++) {
+        if (assessmentsPerWeek[i] > 0) {
+            passRatePerWeek[i] = Math.round((passRatePerWeek[i] / assessmentsPerWeek[i]) * 100);
+        } else {
+            passRatePerWeek[i] = 0;
+        }
+    }
 
     return new Chart(ctx, {
         type: 'line',
@@ -152,8 +220,8 @@ function initPerformanceOverviewChart() {
             labels: labels,
             datasets: [
                 {
-                    label: 'Assessments Added',
-                    data: assessments,
+                    label: 'Assessments Taken',
+                    data: assessmentsPerWeek,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.2)',
                     tension: 0.3,
@@ -162,7 +230,7 @@ function initPerformanceOverviewChart() {
                 },
                 {
                     label: 'Attendance %',
-                    data: attendance,
+                    data: attendancePerWeek,
                     borderColor: '#2ecc71',
                     backgroundColor: 'transparent',
                     tension: 0.3,
@@ -170,7 +238,7 @@ function initPerformanceOverviewChart() {
                 },
                 {
                     label: 'Pass Rate %',
-                    data: passRate,
+                    data: passRatePerWeek,
                     borderColor: '#f1c40f',
                     backgroundColor: 'transparent',
                     tension: 0.3,
@@ -184,11 +252,11 @@ function initPerformanceOverviewChart() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: { display: true, text: 'Assessments Count' }
+                    title: { display: true, text: 'Assessments' }
                 },
                 y1: {
                     beginAtZero: true,
-                    min: 50,
+                    min: 0,
                     max: 100,
                     position: 'right',
                     grid: { drawOnChartArea: false },
@@ -198,6 +266,7 @@ function initPerformanceOverviewChart() {
         }
     });
 }
+
 
 /**
  * Global variables to track sorting state
@@ -485,6 +554,17 @@ async function viewStudent(id) {
         return;
     }
 	
+	// 🔥 Fetch courses for the student
+	    fetch(`/Educator/student/${id}/enrolled-courses`)
+	        .then(response => response.json())
+	        .then(courses => {
+	            lastViewedStudentCourses = courses || [];  // 🔥 Store courses for calculations
+	        })
+	        .catch(error => {
+	            console.error('Error fetching courses:', error);
+	            lastViewedStudentCourses = [];
+	        });
+	
 	console.log("Students:" , student);
     
     // Populate personal info
@@ -607,12 +687,16 @@ function getPerformanceCategory(score) {
  * @param {Array} students - Array of student objects
  * @param {Object} filters - Object containing filter criteria
  */
+// Assume backendResults is populated from Thymeleaf
+// <script th:inline="javascript">
+// const backendResults = /*[[${results}]]*/ [];
+// </script>
+
 async function populateStudentPerformanceTable(students, filters = {}) {
     try {
         const tableContainer = document.getElementById('studentPerformanceTableBody');
         tableContainer.innerHTML = '';
-        
-        // Ensure we have a valid array to work with
+
         if (!Array.isArray(students) || students.length === 0) {
             tableContainer.innerHTML = `
                 <tr>
@@ -623,75 +707,36 @@ async function populateStudentPerformanceTable(students, filters = {}) {
             `;
             return;
         }
-        
+
         console.log('Processing performance data for', students.length, 'students');
-        
-        // Enhance students with performance data if needed
-        const enhancedStudents = await Promise.all(students.map(async (student, index) => {
-            // Calculate student performance metrics
-            let assessmentsAttended = 0;
-            let totalScore = 0;
-            let assessmentCount = 0;
-            
-            // If we have performance data already
-            if (student.performance) {
-                assessmentsAttended = student.performance.assessmentsAttended || 0;
-                totalScore = student.performance.totalScore || 0;
-                assessmentCount = student.performance.assessmentCount || 0;
-            } else {
-                // Fetch student course data to calculate metrics
-                try {
-                    const response = await fetch(`/Educator/student/${student.userId}/enrolled-courses`);
-                    const courses = await response.json();
-					
-					console.log(courses);
-                    
-                    if (Array.isArray(courses)) {
-                        courses.forEach(course => {
-                            if (course.modules) {
-                                course.modules.forEach(module => {
-                                    if (module.assessments) {
-                                        module.assessments.forEach(assessment => {
-                                            if (assessment.completed) {
-                                                assessmentsAttended++;
-												console.log(assessment.score);
-                                                if (assessment.score) {
-                                                    totalScore += assessment.score;
-                                                    assessmentCount++;
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.error(`Error fetching performance data for student ${student.userId}:`, error);
-                }
-            }
-            
+        console.log('backendResults:', backendResults);  // Inspect the data structure
+
+        const enrichedStudents = students.map(student => {
+            const studentId = Number(student.userId);
+            const studentResults = backendResults.filter(r => Number(r.studentId) === studentId);
+
+            console.log(`Student ${student.userId} has ${studentResults.length} results`);
+
+            const assessmentsAttended = studentResults.length;
+            const totalScore = studentResults.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
+            const assessmentCount = assessmentsAttended;
             const averageScore = assessmentCount > 0 ? Math.round(totalScore / assessmentCount) : 0;
             const performanceCategory = getPerformanceCategory(averageScore);
-            
-            // Return enhanced student object with performance metrics
+
             return {
                 ...student,
                 assessmentsAttended,
                 averageScore,
                 performanceCategory
             };
-        }));
-        
-        // Apply filters to the enhanced students
-		console.log(enhancedStudents);
-        filteredPerformanceStudents = filterPerformanceStudents(enhancedStudents, filters);
-        
-        // Apply sorting if available
+        });
+
+        filteredPerformanceStudents = filterPerformanceStudents(enrichedStudents, filters);
+
         if (performanceCurrentSortField) {
             sortPerformanceStudents(filteredPerformanceStudents, performanceCurrentSortField, performanceCurrentSortDirection);
         }
-        
+
         if (filteredPerformanceStudents.length === 0) {
             tableContainer.innerHTML = `
                 <tr>
@@ -702,27 +747,18 @@ async function populateStudentPerformanceTable(students, filters = {}) {
             `;
             return;
         }
-		
-		console.log(filteredPerformanceStudents);
 
-        
-        // Render the filtered and sorted students
         filteredPerformanceStudents.forEach((student, index) => {
             const row = document.createElement('tr');
-            
-            // Safely handle status display - account for potential undefined status
             const userStatus = student.userStatus || student.status || 'Inactive';
-            const isActive = (userStatus.toLowerCase && userStatus.toLowerCase() === 'active') || 
-                             userStatus === 'Active';
-            
+            const isActive = (userStatus.toLowerCase && userStatus.toLowerCase() === 'active') || userStatus === 'Active';
+
             const statusBadge = `
                 <span class="status-badge ${isActive ? 'bg-success' : 'bg-secondary'}">
                     ${userStatus}
                 </span>
             `;
-			
-			console.log(student);
-            
+
             row.innerHTML = `
                 <td>${student.userId || index + 1}</td>
                 <td>${student.userFirstName || '-'}</td>
@@ -733,11 +769,11 @@ async function populateStudentPerformanceTable(students, filters = {}) {
                 <td>
                     <div class="d-flex align-items-center">
                         <div class="progress me-2" style="height: 6px; width: 80px;">
-                            <div class="progress-bar ${getScoreColorClass(student.averageScore)}" 
-                                 role="progressbar" 
-                                 style="width: ${student.averageScore}%" 
-                                 aria-valuenow="${student.averageScore}" 
-                                 aria-valuemin="0" 
+                            <div class="progress-bar ${getScoreColorClass(student.averageScore)}"
+                                 role="progressbar"
+                                 style="width: ${student.averageScore}%"
+                                 aria-valuenow="${student.averageScore}"
+                                 aria-valuemin="0"
                                  aria-valuemax="100">
                             </div>
                         </div>
@@ -752,10 +788,9 @@ async function populateStudentPerformanceTable(students, filters = {}) {
             `;
             tableContainer.appendChild(row);
         });
-        
-        // Update pagination
+
         updatePerformancePagination(filteredPerformanceStudents.length);
-        
+
     } catch (error) {
         console.error('Error populating student performance table:', error);
         document.getElementById('studentPerformanceTableBody').innerHTML = `
@@ -929,122 +964,94 @@ function initializePerformanceTableControls() {
     });
 }
 
-// Function to view student assessments details
 function viewStudentAssessments(studentId) {
-	
-	const student = backendStudents.find(s => s.userId === studentId);
-	   
-	   if (!student) {
-	       console.error('Student not found:', studentId);
-	       alert('Student data not found.');
-	       return;
-	   }
-    // Fetch the student data and courses
-            return fetch(`/Educator/student/${studentId}/enrolled-courses`)
-                .then(response => response.json())
-                .then(courses => {
-					lastViewedStudentCourses = courses; // ✅ Store it for later
-                    showAssessmentsDetailsModal(student, courses);
-                });
+    const student = backendStudents.find(s => Number(s.userId) === Number(studentId));
+
+    if (!student) {
+        console.error('Student not found:', studentId);
+        alert('Student data not found.');
+        return;
+    }
+
+    // Filter backendResults for this student
+    const studentResults = backendResults.filter(r => Number(r.studentId) === Number(studentId));
+
+    // Pass to modal display
+    showAssessmentsDetailsModal(student, studentResults);
 }
 
-// Function to display assessments in a modal
-function showAssessmentsDetailsModal(student, courses) {
-    // Calculate overall statistics
-    let totalAssessments = 0;
-    let completedAssessments = 0;
-    let totalScore = 0;
-    let scoreCount = 0;
-    let courseStatistics = [];
-    
-    courses.forEach(course => {
-        let courseTotalAssessments = 0;
-        let courseCompletedAssessments = 0;
-        let courseTotalScore = 0;
-        let courseScoreCount = 0;
-        
-        if (course.modules) {
-            course.modules.forEach(module => {
-                if (module.assessments) {
-                    module.assessments.forEach(assessment => {
-                        totalAssessments++;
-                        courseTotalAssessments++;
-                        
-                        if (assessment.completed) {
-                            completedAssessments++;
-                            courseCompletedAssessments++;
-                            
-                            if (assessment.score) {
-                                totalScore += assessment.score;
-                                scoreCount++;
-                                
-                                courseTotalScore += assessment.score;
-                                courseScoreCount++;
-                            }
-                        }
-                    });
-                }
-            });
+function showAssessmentsDetailsModal(student, results) {
+    let totalAssessments = results.length;
+    let completedAssessments = totalAssessments;
+    let totalScore = results.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
+    let scoreCount = results.length;
+    let averageScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+    let completionPercentage = totalAssessments > 0 ? 100 : 0;
+
+    // 🔥 Simulate course grouping (for now use assessmentTitle as placeholder)
+    const courseGroups = {};
+    results.forEach(r => {
+        const courseName = r.assessmentTitle || 'General Course'; // 🔥 Replace with courseName from ResultDTO if available
+        if (!courseGroups[courseName]) {
+            courseGroups[courseName] = [];
         }
-        
-        const courseAvgScore = courseScoreCount > 0 ? Math.round(courseTotalScore / courseScoreCount) : 0;
-        const courseCompletionRate = courseTotalAssessments > 0 ? 
-            Math.round((courseCompletedAssessments / courseTotalAssessments) * 100) : 0;
-            
+        courseGroups[courseName].push(r);
+    });
+
+    let courseStatsList = '';
+    const courseStatistics = [];
+
+    for (const [courseName, courseResults] of Object.entries(courseGroups)) {
+        const courseTotalAssessments = courseResults.length;
+        const courseCompletedAssessments = courseTotalAssessments;
+        const courseTotalScore = courseResults.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
+        const courseAvgScore = courseTotalScore > 0 ? Math.round(courseTotalScore / courseTotalAssessments) : 0;
+        const courseCompletionRate = 100; // All assessments in ResultDTO are completed
+
         courseStatistics.push({
-            courseId: course.courseId,
-            courseName: course.courseName,
+            courseId: null, // 🔥 No courseId from ResultDTO; can be added later
+            courseName,
             totalAssessments: courseTotalAssessments,
             completedAssessments: courseCompletedAssessments,
             averageScore: courseAvgScore,
             completionRate: courseCompletionRate
         });
-    });
-    
-    const averageScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
-    const completionPercentage = totalAssessments > 0 ? Math.round((completedAssessments / totalAssessments) * 100) : 0;
-    
-    // Create course-wise assessment statistics
-    let courseStatsList = '';
-    
-    if (courseStatistics.length > 0) {
-        courseStatsList = courseStatistics.map(stat => `
+
+        courseStatsList += `
             <div class="mb-3 d-flex justify-content-center">
                 <div class="card" style="width: 90%; max-width: 1000px;">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">${stat.courseName}</h6>
-                        <span class="badge bg-${getScoreColorClass(stat.averageScore)}">
-                            Avg. Score: ${stat.averageScore}/100
+                        <h6 class="mb-0">${courseName}</h6>
+                        <span class="badge bg-${getScoreColorClass(courseAvgScore)}">
+                            Avg. Score: ${courseAvgScore}/100
                         </span>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Assessments: ${stat.completedAssessments}/${stat.totalAssessments} completed</p>
-                                <div class="progress mb-3" style="height: 8px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" 
-                                         style="width: ${stat.completionRate}%" 
-                                         aria-valuenow="${stat.completionRate}" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-sm btn-outline-primary float-end" 
-                                        onclick="viewDetailedAssessments(${stat.courseId})">
-                                    View Detailed Assessments
-                                </button>
-                            </div>
+                        <p>Assessments: ${courseCompletedAssessments}/${courseTotalAssessments} completed</p>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 style="width: ${courseCompletionRate}%;" 
+                                 aria-valuenow="${courseCompletionRate}" 
+                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
+						<button class="btn btn-sm btn-outline-primary float-end" 
+						                        onclick="viewDetailedAssessments(${student.userId}, '${courseName.replace(/'/g, "\\'")}')">
+						                    View Detailed Assessments
+						                </button>
                     </div>
                 </div>
             </div>
-        `).join('');
-    } else {
-        courseStatsList = '<div class="alert alert-info">No courses available for this student</div>';
+        `;
     }
 
-    // Create or update modal
+    if (!courseStatsList) {
+        courseStatsList = '<div class="alert alert-info">No assessments available for this student</div>';
+    }
+
+    // 🔥 Calculate simulated course progress (using distinct courseNames as "courses")
+    const totalCourses = courseStatistics.length;
+    const avgCourseProgress = totalCourses > 0 ? Math.round((courseStatistics.reduce((sum, stat) => sum + stat.completionRate, 0)) / totalCourses) : 0;
+
     let modal = document.getElementById('assessmentsDetailsModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -1062,7 +1069,6 @@ function showAssessmentsDetailsModal(student, courses) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Performance Overview -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">Overall Performance</h5>
@@ -1077,21 +1083,8 @@ function showAssessmentsDetailsModal(student, courses) {
                                                 <h4 class="mb-0">${completionPercentage}%</h4>
                                             </div>
                                             <svg width="100" height="100" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#4e73df"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${completionPercentage}, 100" />
+                                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+                                                <path class="circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#4e73df" stroke-width="3" stroke-dasharray="${completionPercentage}, 100" />
                                             </svg>
                                         </div>
                                     </div>
@@ -1107,21 +1100,8 @@ function showAssessmentsDetailsModal(student, courses) {
                                                 <h4 class="mb-0">${averageScore}</h4>
                                             </div>
                                             <svg width="100" height="100" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#36b9cc"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${averageScore}, 100" />
+                                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+                                                <path class="circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#36b9cc" stroke-width="3" stroke-dasharray="${averageScore}, 100" />
                                             </svg>
                                         </div>
                                     </div>
@@ -1134,37 +1114,22 @@ function showAssessmentsDetailsModal(student, courses) {
                                     <div class="d-flex align-items-center justify-content-center">
                                         <div class="position-relative" style="width: 100px; height: 100px;">
                                             <div class="position-absolute top-50 start-50 translate-middle">
-                                                <h4 class="mb-0">${Math.round(courses.reduce((sum, course) => sum + (course.progress || 0), 0) / (courses.length || 1))}%</h4>
+                                                <h4 class="mb-0">${avgCourseProgress}%</h4>
                                             </div>
                                             <svg width="100" height="100" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#1cc88a"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${Math.round(courses.reduce((sum, course) => sum + (course.progress || 0), 0) / (courses.length || 1))}, 100" />
+                                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+                                                <path class="circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1cc88a" stroke-width="3" stroke-dasharray="${avgCourseProgress}, 100" />
                                             </svg>
                                         </div>
                                     </div>
                                     <div class="mt-2">
-                                        <span>${courses.length} Course${courses.length !== 1 ? 's' : ''}</span>
+                                        <span>${totalCourses} Course${totalCourses !== 1 ? 's' : ''}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Course-wise Assessment Statistics -->
-                    <h6 class="mb-3 ms-4 fw-bold">Assessment Performance by Course</h6>
+                    <h6 class="mb-3 ms-4 fw-bold">Assessment Performance Details</h6>
                     ${courseStatsList}
                 </div>
                 <div class="modal-footer">
@@ -1174,31 +1139,28 @@ function showAssessmentsDetailsModal(student, courses) {
         </div>
     `;
 
-    // Show the modal (requires Bootstrap JS)
     const modalInstance = new bootstrap.Modal(modal);
     modalInstance.show();
 }
 
+
 // Function to view detailed assessments for a specific course
-function viewDetailedAssessments(courseId) {
-    // First dismiss the current modal
+function viewDetailedAssessments(studentId, courseName) {
     const currentModal = bootstrap.Modal.getInstance(document.getElementById('assessmentsDetailsModal'));
     currentModal.hide();
-    
-	// Use the already fetched courses list
-	    const course = lastViewedStudentCourses.find(c => c.courseId === courseId);
 
-	    if (course) {
-	        showAssessmentsModal(course);
-	    } else {
-	        alert("Course details not available.");
-	    }
+    // 🔥 Filter by studentId and courseName
+    const courseResults = backendResults.filter(r => Number(r.studentId) === Number(studentId) && r.assessmentTitle === courseName);
+
+    if (courseResults.length > 0) {
+        showAssessmentsModal(courseName, courseResults);
+    } else {
+        alert("No assessment details available for this student in this course.");
+    }
 }
 
 
-// Function to show detailed assessments modal for a specific course
-function showAssessmentsModal(course) {
-    // Create or update modal
+function showAssessmentsModal(courseName, courseResults) {
     let modal = document.getElementById('courseAssessmentsModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -1208,227 +1170,107 @@ function showAssessmentsModal(course) {
         document.body.appendChild(modal);
     }
 
-    // Prepare assessment details
+    const totalAssessments = courseResults.length;
+    const completedCount = totalAssessments; // All are completed in ResultDTO
+    const totalScore = courseResults.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0);
+    const averageScore = totalAssessments > 0 ? Math.round(totalScore / totalAssessments) : 0;
+    const completionPercentage = totalAssessments > 0 ? 100 : 0;
+
+    // 🔥 Group by module if module info is available (optional)
+    const moduleGroups = {};  // Replace with moduleName from ResultDTO if available
+    courseResults.forEach(r => {
+        const moduleName = "Module 1"; // 🔥 Replace with r.moduleName if ResultDTO has it
+        if (!moduleGroups[moduleName]) {
+            moduleGroups[moduleName] = [];
+        }
+        moduleGroups[moduleName].push(r);
+    });
+
     let assessmentDetails = '';
-    let totalScore = 0;
-    let scoreCount = 0;
-    let completedCount = 0;
-    let totalAssessments = 0;
-	
-	console.log(course);
-	console.log(course.modules);
-
-    // Process modules and assessments
-    if (course.modules && course.modules.length > 0) {
-        course.modules.forEach(module => {
-            if (module.assessments && module.assessments.length > 0) {
-                totalAssessments += module.assessments.length;
-                
-                assessmentDetails += `
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <h5 class="mb-0">${module.moduleName}</h5>
-                            <small class="text-muted">
-                                ${module.startDate ? new Date(module.startDate).toLocaleDateString() : 'No start date'} - 
-                                ${module.endDate ? new Date(module.endDate).toLocaleDateString() : 'No end date'}
-                            </small>
+    for (const [moduleName, assessments] of Object.entries(moduleGroups)) {
+        assessmentDetails += `
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">${moduleName}</h5>
+                    </div>
+                    <div class="d-flex gap-4 align-items-center">
+                        <div class="text-center">
+                            <small>Completion</small>
+                            ${createCircularProgress(100, '#1cc88a')}
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Assessment</th>
-                                            <th>Status</th>
-                                            <th>Due Date</th>
-                                            <th>Score</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                `;
-
-                module.assessments.forEach(assessment => {
-                    const completed = assessment.completed || false;
-                    const score = assessment.score || 0;
-                    const maxScore = assessment.maxScore || 100;
-                    
-                    if (completed) {
-                        completedCount++;
-                        if (assessment.score) {
-                            totalScore += score;
-                            scoreCount++;
-                        }
-                    }
-
-                    assessmentDetails += `
-                        <tr>
-                            <td>${assessment.assessmentName || 'Unnamed Assessment'}</td>
-                            <td>
-                                <span class="badge ${completed ? 'bg-success' : 'bg-warning'}">
-                                    ${completed ? 'Completed' : 'Pending'}
-                                </span>
-                            </td>
-                            <td>${assessment.dueDate ? new Date(assessment.dueDate).toLocaleDateString() : '-'}</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="progress me-2" style="height: 6px; width: 80px;">
-                                        <div class="progress-bar ${getScoreColorClass(score)}" 
-                                             role="progressbar" 
-                                             style="width: ${score}%" 
-                                             aria-valuenow="${score}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="${maxScore}">
-                                        </div>
-                                    </div>
-                                    <span>${score}/${maxScore}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" 
-                                        onclick="viewAssessmentDetails(${assessment.assessmentId})">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                assessmentDetails += `
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="text-center">
+                            <small>Avg. Score</small>
+                            ${createCircularProgress(
+                                Math.round(assessments.reduce((sum, r) => sum + (r.obtainedMarks || 0), 0) / assessments.length),
+                                '#36b9cc'
+                            )}
                         </div>
                     </div>
-                `;
-            } else {
-                assessmentDetails += `
-                    <div class="alert alert-info mb-3">
-                        No assessments found for module: ${module.moduleName}
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Status</th>
+                                    <th>Completed Date</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${assessments.map(a => `
+                                    <tr>
+                                        <td>${a.assessmentTitle || 'Unnamed'}</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td>${a.completedDate ? new Date(a.completedDate).toLocaleDateString() : '-'}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress me-2" style="height: 6px; width: 80px;">
+                                                    <div class="progress-bar ${getScoreColorClass(a.obtainedMarks)}"
+                                                         role="progressbar"
+                                                         style="width: ${a.obtainedMarks}%"
+                                                         aria-valuenow="${a.obtainedMarks}" aria-valuemin="0" aria-valuemax="${a.totalMarks}">
+                                                    </div>
+                                                </div>
+                                                <span>${a.obtainedMarks}/${a.totalMarks}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
-                `;
-            }
-        });
-    } else {
-        assessmentDetails = `
-            <div class="alert alert-info">
-                No modules or assessments found for this course
+                </div>
             </div>
         `;
     }
-
-    // Calculate average score
-    const averageScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
-    const completionPercentage = totalAssessments > 0 ? Math.round((completedCount / totalAssessments) * 100) : 0;
 
     modal.innerHTML = `
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Assessment Details: ${course.courseName}</h5>
+                    <h5 class="modal-title">Assessment Details: ${courseName}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Performance Summary -->
-                    <div class="row mb-4">
+                    <div class="row mb-4 justify-content-center text-center">
                         <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6 class="card-title">Course Progress</h6>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="position-relative" style="width: 120px; height: 120px;">
-                                            <div class="position-absolute top-50 start-50 translate-middle">
-                                                <h3 class="mb-0">${course.progress || 0}%</h3>
-                                            </div>
-                                            <svg width="120" height="120" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#4e73df"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${course.progress || 0}, 100" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h6>Course Completion</h6>
+                            ${createCircularProgress(completionPercentage, '#4e73df')}
                         </div>
                         <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6 class="card-title">Assessment Completion</h6>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="position-relative" style="width: 120px; height: 120px;">
-                                            <div class="position-absolute top-50 start-50 translate-middle">
-                                                <h3 class="mb-0">${completionPercentage}%</h3>
-                                            </div>
-                                            <svg width="120" height="120" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#1cc88a"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${completionPercentage}, 100" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p class="mb-0">${completedCount} of ${totalAssessments} assessments completed</p>
-                                </div>
-                            </div>
+                            <h6>Assessment Completion</h6>
+                            ${createCircularProgress(completionPercentage, '#1cc88a')}
+                            <p>${completedCount} of ${totalAssessments} assessments completed</p>
                         </div>
                         <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6 class="card-title">Average Score</h6>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="position-relative" style="width: 120px; height: 120px;">
-                                            <div class="position-absolute top-50 start-50 translate-middle">
-                                                <h3 class="mb-0">${averageScore}</h3>
-                                            </div>
-                                            <svg width="120" height="120" viewBox="0 0 36 36">
-                                                <path class="circle-bg"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#eee"
-                                                    stroke-width="3" />
-                                                <path class="circle"
-                                                    d="M18 2.0845
-                                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                    fill="none"
-                                                    stroke="#36b9cc"
-                                                    stroke-width="3"
-                                                    stroke-dasharray="${averageScore}, 100" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p class="mb-0">out of 100 points</p>
-                                </div>
-                            </div>
+                            <h6>Average Score</h6>
+                            ${createCircularProgress(averageScore, '#36b9cc')}
+                            <p>out of 100 points</p>
                         </div>
                     </div>
-
-                    <!-- Assessment Details -->
                     <h5 class="mb-3">Module Assessments</h5>
                     ${assessmentDetails}
                 </div>
@@ -1439,24 +1281,92 @@ function showAssessmentsModal(course) {
         </div>
     `;
 
-    // Show the modal (requires Bootstrap JS)
     const modalInstance = new bootstrap.Modal(modal);
     modalInstance.show();
 }
 
+// 🔥 Helper function remains the same:
+function createCircularProgress(percentage, strokeColor) {
+    const radius = 15.9155;
+    const circumference = 2 * Math.PI * radius;
+    const dashOffset = circumference * (1 - percentage / 100);
+    return `
+        <svg width="120" height="120" viewBox="0 0 36 36" class="mx-auto d-block">
+            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3"/>
+            <path class="circle" stroke="${strokeColor}" stroke-width="3" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="20.35" class="percentage-text" text-anchor="middle" font-size="8" fill="#333">${percentage}%</text>
+        </svg>
+    `;
+}
+
+
 // Function to initialize performance chart
+
+// Function to initialize performance chart and metrics dynamically
 function initStudentPerformanceChart() {
     const ctx = document.getElementById('studentPerformanceChart').getContext('2d');
-    
-    // Destroy previous chart if exists
+
     if (studentPerformanceChart) {
         studentPerformanceChart.destroy();
     }
-    
-    // Sample data - replace with actual data from API
+
+    // Filter backendResults for current student
+    const studentResults = backendResults.filter(r => Number(r.studentId) === Number(currentViewingStudentId));
+
+    // === Grouping by unique completed assessment IDs ===
+    const uniqueAssessmentIds = new Set();
+    studentResults.forEach(r => {
+        if (r.assessmentId != null) {
+            uniqueAssessmentIds.add(r.assessmentId);
+        }
+    });
+    const totalUniqueAssessmentsCompleted = uniqueAssessmentIds.size;
+
+    // Performance Chart - Group by week (use all attempts)
     const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-    const performanceData = labels.map(() => Math.floor(60 + Math.random() * 35));
-    
+    const performanceData = [0, 0, 0, 0];
+    const assessmentCounts = [0, 0, 0, 0];
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    studentResults.forEach(r => {
+        if (!r.completedDate) return;
+        const date = new Date(r.completedDate);
+        const weekIndex = Math.min(Math.floor((date - startOfThisMonth) / (7 * 24 * 60 * 60 * 1000)), 3);
+        performanceData[weekIndex] += r.resultPercentage || 0;
+        assessmentCounts[weekIndex]++;
+    });
+
+    for (let i = 0; i < 4; i++) {
+        if (assessmentCounts[i] > 0) {
+            performanceData[i] = Math.round(performanceData[i] / assessmentCounts[i]);
+        } else {
+            performanceData[i] = 0;
+        }
+    }
+
+    // Metric Calculations
+
+    // 1️⃣ Overall Score (average of percentages) - using all attempts
+    const totalAssessmentsCompleted = studentResults.length;
+    const overallScore = totalAssessmentsCompleted > 0
+        ? Math.round(studentResults.reduce((sum, r) => sum + (r.resultPercentage || 0), 0) / totalAssessmentsCompleted)
+        : 0;
+
+    // 2️⃣ Pass Rate = (passed attempts / total attempts) * 100
+    const passedCount = studentResults.filter(r => r.resultStatus && r.resultStatus.toLowerCase() === 'passed').length;
+    const passRate = totalAssessmentsCompleted > 0 ? Math.round((passedCount / totalAssessmentsCompleted) * 100) : 0;
+
+    // 3️⃣ Attendance = (unique assessments completed / total assigned) * 100
+    const assignedAssessments = getTotalAssignedAssessmentsForStudent(currentViewingStudentId);
+    const attendance = assignedAssessments > 0
+        ? Math.round((totalUniqueAssessmentsCompleted / assignedAssessments) * 100)
+        : 0;
+
+    // 4️⃣ Assignments Completed = count of unique assessments completed (not total attempts)
+    const assignmentsCompleted = totalUniqueAssessmentsCompleted;
+
+    // Render the chart
     studentPerformanceChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1467,18 +1377,19 @@ function initStudentPerformanceChart() {
                 borderColor: '#4361ee',
                 backgroundColor: 'rgba(67, 97, 238, 0.1)',
                 tension: 0.4,
-                fill: true
+                fill: true,
+                spanGaps: true
             }]
         },
         options: {
             responsive: true,
-			maintainAspectRatio: false,
+            maintainAspectRatio: false,
             plugins: {
                 legend: { position: 'top' },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `Score: ${context.raw}%`;
+                            return `Score: ${context.raw !== null ? context.raw + '%' : 'No Data'}`;
                         }
                     }
                 }
@@ -1486,16 +1397,32 @@ function initStudentPerformanceChart() {
             scales: {
                 y: {
                     beginAtZero: false,
-                    min: 50,
+                    min: 10,
                     max: 100,
                     title: { display: true, text: 'Score (%)' }
                 }
             }
         }
     });
-    
-    // Update performance metrics with random data (replace with actual API data)
-    document.getElementById('overallScore').textContent = `${Math.floor(70 + Math.random() * 20)}%`;
-    document.getElementById('avgAttendance').textContent = `${Math.floor(80 + Math.random() * 15)}%`;
-    document.getElementById('assignmentsCompleted').textContent = `${Math.floor(5 + Math.random() * 10)}`;
+
+    // Update metrics in UI
+    document.getElementById('overallScore').textContent = `${overallScore}%`;
+    document.getElementById('completedCoursesCount').textContent = `${passRate}%`; // Pass Rate
+    document.getElementById('avgAttendance').textContent = `${attendance}%`; // Attendance
+    document.getElementById('assignmentsCompleted').textContent = `${assignmentsCompleted}`;
 }
+
+
+function getTotalAssignedAssessmentsForStudent(studentId) {
+    let totalAssigned = 0;
+	console.log("LastViewedCourses: ", lastViewedStudentCourses);
+    lastViewedStudentCourses.forEach(course => {
+        course.modules?.forEach(module => {
+            module.assessments?.forEach(assessment => {
+                totalAssigned++;
+            });
+        });
+    });
+    return totalAssigned;
+}
+

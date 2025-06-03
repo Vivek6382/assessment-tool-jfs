@@ -64,7 +64,28 @@ public class AssessmentDTO {
         this.createdAt = createdAt;
     }
     
-    // Getters and Setters
+    public AssessmentDTO(Integer assessmentId2, String assessmentTitle2, String assessmentType2,
+			Integer assessmentTotalMarks2) {
+		// TODO Auto-generated constructor stub
+	}
+
+    public AssessmentDTO(Integer assessmentId2, String assessmentTitle2, String assessmentDescription2,
+            String assessmentType2, Integer assessmentDurationMinutes2, Integer assessmentPassingScore2,
+            Integer assessmentTotalMarks2, String assessmentStatus2, LocalDateTime startDate, LocalDateTime endDate) {
+    this.assessmentId = assessmentId2;
+    this.assessmentTitle = assessmentTitle2;
+    this.assessmentDescription = assessmentDescription2;
+    this.assessmentType = assessmentType2;
+    this.assessmentDurationMinutes = assessmentDurationMinutes2;
+    this.assessmentPassingScore = assessmentPassingScore2;
+    this.assessmentTotalMarks = assessmentTotalMarks2;
+    this.assessmentStatus = assessmentStatus2;
+    this.startDate= startDate;
+    this.endDate = endDate;
+}
+
+
+	// Getters and Setters
     public Integer getAssessmentId() {
         return assessmentId;
     }

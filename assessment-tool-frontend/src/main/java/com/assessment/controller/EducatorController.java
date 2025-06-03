@@ -34,9 +34,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.assessment.dto.LoginRequest;
 import com.assessment.dto.LoginResponse;
+import com.assessment.dto.ResultDTO;
 import com.assessment.service.CourseBackendService;
 import com.assessment.service.ModuleBackendService;
+import com.assessment.service.ResultBackendService;
 import com.assessment.service.UserBackendService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/Educator")
@@ -50,6 +53,8 @@ public class EducatorController {
 	
 	@Autowired
 	private ModuleBackendService moduleBackendService;
+	
+	@Autowired ResultBackendService resultBackendService;
 	
 	 @Autowired
 	 private RestTemplate restTemplate;
@@ -79,6 +84,22 @@ public class EducatorController {
 		    model.addAttribute("courses", courses);
 		    model.addAttribute("recentCourses", recentCourses);
 		    model.addAttribute("students", students);
+		    
+		    List<ResultDTO> results;
+		    // 🚀 NEW: Fetch all results
+		    results = resultBackendService.getAllResults();
+
+	        try {
+	            String resultsJson = new ObjectMapper().writeValueAsString(results);
+	            model.addAttribute("resultsJson", resultsJson);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            model.addAttribute("resultsJson", "[]");
+	        }
+
+		    model.addAttribute("results", results);
+		    
+		    
 		    
 		    return "Educator/Dashboard";
 	}
@@ -166,6 +187,8 @@ public class EducatorController {
 	    // 3. Apply search and sort to active courses
 	    List<Map<String, Object>> filteredCourses = filterAndSortCourses(activeCourses, search, sort, direction);
 	    
+	    List<Map<String, Object>> students = userBackendService.getUsersByRole(3);
+
 	    List<Map<String, Object>> recentCourses = courseBackendService.getRecentCourses(3); // recent
 
 	    model.addAttribute("userInfo", userBackendService.getUserById(userId));
@@ -176,6 +199,22 @@ public class EducatorController {
 	    model.addAttribute("currentSearch", search);
 	    model.addAttribute("currentSort", sort);
 	    model.addAttribute("currentDirection", direction);
+	    model.addAttribute("students", students);
+
+	    
+	    List<ResultDTO> results;
+	    // 🚀 NEW: Fetch all results
+	    results = resultBackendService.getAllResults();
+
+        try {
+            String resultsJson = new ObjectMapper().writeValueAsString(results);
+            model.addAttribute("resultsJson", resultsJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("resultsJson", "[]");
+        }
+
+	    model.addAttribute("results", results);
 
 	    return "Educator/ProfileManagement";
 	}
@@ -257,26 +296,35 @@ public class EducatorController {
 		return "Educator/MyClasses";
 	}
 	
-    @GetMapping("/StudentsManagement")
-    public String showStudentManagementPage(Model model, HttpSession session) {
-    	Integer userId = (Integer) session.getAttribute("userId");
-	    if (userId == null) {
-	        return "redirect:/Educator/Login";
-	    }
-	    
-	 // Get all courses for the instructor
+	@GetMapping("/StudentsManagement")
+	public String showStudentManagementPage(Model model, HttpSession session,
+	                                        @RequestParam(value = "studentId", required = false) Integer studentId,
+	                                        @RequestParam(value = "moduleId", required = false) Integer moduleId) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    if (userId == null) return "redirect:/Educator/Login";
+
 	    List<Map<String, Object>> courses = courseBackendService.getCoursesByInstructor(userId);
-	    
-	 // Get all students (users with role ID 3)
 	    List<Map<String, Object>> students = userBackendService.getUsersByRole(3);
-	    
-	    // Add to model
+
 	    model.addAttribute("userInfo", userBackendService.getUserById(userId));
 	    model.addAttribute("courses", courses);
 	    model.addAttribute("students", students);
-	    
-        return "Educator/StudentsManagement";
-    }
+
+	    List<ResultDTO> results;
+	    if (studentId != null && moduleId != null) {
+	        results = resultBackendService.getStudentResultsByModule(studentId, moduleId);
+	    } else if (studentId != null) {
+	        results = resultBackendService.getResultsByStudent(studentId);
+	    } else {
+	        // 🚀 NEW: Fetch all results
+	        results = resultBackendService.getAllResults();
+	    }
+
+	    model.addAttribute("results", results);
+	    return "Educator/StudentsManagement";
+	}
+
+
     
     @GetMapping("/Logout")
     public String logout(HttpSession session) {

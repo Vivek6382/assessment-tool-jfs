@@ -43,4 +43,84 @@ public class QuestionOption {
        @JsonManagedReference(value = "option-response")
        private List<Response> responses;
 
+
+	public Integer getOptionId() {
+		return optionId;
+	}
+
+
+	public void setOptionId(Integer optionId) {
+		this.optionId = optionId;
+	}
+
+
+	public Question getQuestion() {
+		return question;
+	}
+
+
+	public void setQuestion(Question question) {
+		this.question = question;
+	}
+
+
+	public String getOptionText() {
+		return optionText;
+	}
+
+
+	public void setOptionText(String optionText) {
+		this.optionText = optionText;
+	}
+
+
+	public Boolean getIsCorrect() {
+		return isCorrect;
+	}
+
+
+	public void setIsCorrect(Boolean isCorrect) {
+		this.isCorrect = isCorrect;
+	}
+
+
+	public List<Answer> getAnswers() {
+		return answers;
+	}
+
+
+	public void setAnswers(List<Answer> answers) {
+		this.answers = answers;
+	}
+
+
+	public List<Response> getResponses() {
+		return responses;
+	}
+
+
+	public void setResponses(List<Response> responses) {
+		this.responses = responses;
+	}
+
+
+	public QuestionOption(Integer optionId, Question question, String optionText, Boolean isCorrect,
+			List<Answer> answers, List<Response> responses) {
+		super();
+		this.optionId = optionId;
+		this.question = question;
+		this.optionText = optionText;
+		this.isCorrect = isCorrect;
+		this.answers = answers;
+		this.responses = responses;
+	}
+
+
+	public QuestionOption() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+       
+       
+
 }

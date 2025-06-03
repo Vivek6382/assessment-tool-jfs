@@ -16,279 +16,104 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	// Initialize existing question data if editing
 	loadExistingQuestionData();
-
+	
 
 	// Initialize activation button - should be last
 	initActivationButton();
-
-
-	calculateAndDisplayProgress();
-
-	// Also update when coming back from other tabs
-	window.addEventListener('focus', calculateAndDisplayProgress);
-
-
-	// Add this line
-	updateStatusBadge();
+	
 });
 
 
-// Add this function to your BasicSettings.js
-function updateStatusBadge() {
-	const assessmentId = document.body.getAttribute('data-assessment-id') ||
-		(document.getElementById('hiddenAssessmentId') ? document.getElementById('hiddenAssessmentId').value : null) ||
-		(document.getElementById('assessment-id') ? document.getElementById('assessment-id').value : null);
 
-	if (!assessmentId) {
-		// No assessment yet - show default draft state
-		const badge = document.querySelector('.setup-badge');
-		if (badge) {
-			badge.className = 'setup-badge draft d-inline-block mb-3';
-			badge.textContent = 'SETUP IN PROGRESS';
-		}
-		return;
-	}
-
-	// Fetch test info
-	fetch('/EducatorConfig/TestInfo/GetTestInfo?assessmentId=' + assessmentId)
-		.then(response => response.json())
-		.then(data => {
-			if (data && data.success) {
-				const assessmentStatus = (
-					(data.assessment && data.assessment.assessmentStatus && data.assessment.assessmentStatus.toLowerCase())
-					|| 'draft'
-				);
-				const badge = document.querySelector('.setup-badge');
-
-				if (badge) {
-					// Reset classes
-					badge.className = 'setup-badge d-inline-block mb-3';
-
-					// Add status-specific class and text
-					badge.classList.add(assessmentStatus);
-
-					switch (assessmentStatus) {
-						case 'draft':
-							badge.textContent = 'SETUP IN PROGRESS';
-							break;
-						case 'active':
-							badge.textContent = 'ACTIVE';
-							break;
-						case 'frozen':
-							badge.textContent = 'FROZEN';
-							break;
-						case 'inactive':
-							badge.textContent = 'INACTIVE';
-							break;
-						default:
-							badge.textContent = 'SETUP IN PROGRESS';
-					}
-				}
-			}
-		})
-		.catch(error => {
-			console.error('Error fetching assessment status:', error);
-		});
-}
-
-
-
-
-//Standalone Progress bar
-
-// Progress calculation and display - Add this to all tab JS files
-function calculateAndDisplayProgress() {
-	// Get assessment ID from wherever it's stored
-	const assessmentId = document.body.getAttribute('data-assessment-id') ||
-		(document.getElementById('hiddenAssessmentId') ? document.getElementById('hiddenAssessmentId').value : null) ||
-		(document.getElementById('assessment-id') ? document.getElementById('assessment-id').value : null);
-
-	if (!assessmentId) {
-		// No assessment yet - show 0%
-		updateProgressBar(0);
-		return;
-	}
-
-	// Fetch test info which contains all completion data
-	fetch('/EducatorConfig/TestInfo/GetTestInfo?assessmentId=' + assessmentId)
-		.then(function(response) {
-			return response.json();
-		})
-		.then(function(data) {
-			if (data.success) {
-				const completion = calculateCompletionPercentage(data);
-				updateProgressBar(completion);
-			} else {
-				console.error('Error fetching test info:', data.error);
-				updateProgressBar(0);
-			}
-		})
-		.catch(function(error) {
-			console.error('Error calculating progress:', error);
-			updateProgressBar(0);
-		});
-}
-
-function calculateCompletionPercentage(testInfo) {
-	if (!testInfo || !testInfo.assessment) return 0;
-
-	const assessment = testInfo.assessment;
-	const questionCount = testInfo.questionCount || 0;
-
-	// If test is active, it's 100% complete
-	if (assessment.assessmentStatus === 'active') {
-		return 100;
-	}
-
-	// Calculate completion based on configured items with proper weightings
-	let completion = 0;
-
-	// 1. Basic Settings (20%) - title + category
-	if (assessment.assessmentTitle && assessment.assessmentTitle !== "New test") {
-		completion += 10; // 10% for title
-	}
-	if (assessment.moduleId) {
-		completion += 10; // 10% for category
-	}
-
-	// 2. Questions (20%)
-	if (questionCount > 0) completion += 20;
-
-	// 3. Test Sets (15%) - question order
-	if (assessment.questionOrder) completion += 15;
-
-	// 4. Test Start Page (15%) - instruction text
-	if (assessment.instructionText) completion += 15;
-
-	// 5. Grading & Summary (15%) - passing score
-	if (assessment.assessmentPassingScore !== null && assessment.passingScoreUnit) completion += 15;
-
-	// 6. Time Settings (15%) - dates
-	if (assessment.startDate && assessment.endDate) completion += 15;
-
-	// Ensure we don't exceed 100%
-	return Math.min(Math.round(completion), 100);
-}
-
-function updateProgressBar(percentage) {
-	const progressSection = document.querySelector('.progress-section');
-	const progressBar = document.querySelector('.progress-bar');
-
-	if (!progressSection || !progressBar) return;
-
-	// Update percentage text
-	const percentageSpan = progressSection.querySelector('span');
-	if (percentageSpan) {
-		percentageSpan.textContent = `${percentage}% completed`;
-	}
-
-	// Update progress bar width
-	progressBar.style.width = `${percentage}%`;
-
-	// Update progress bar color class
-	progressBar.classList.remove('low', 'medium', 'high', 'complete');
-
-	if (percentage < 30) {
-		progressBar.classList.add('low');
-	} else if (percentage < 80) {
-		progressBar.classList.add('medium');
-	} else if (percentage < 100) {
-		progressBar.classList.add('high');
-	} else {
-		progressBar.classList.add('complete');
-	}
-}
-
-
-
+// STANDALONE ACTIVATION HANDLER - COPY THIS TO ALL PAGES
 // STANDALONE ACTIVATION HANDLER - UPDATED FOR BASIC SETTINGS
 function initActivationButton() {
-	var activateBtn = document.querySelector('.btn-activate');
-	if (activateBtn) {
-		activateBtn.addEventListener('click', function(e) {
-			e.preventDefault();
-
-			// Store original button content
-			var originalContent = activateBtn.innerHTML;
-			var originalClass = activateBtn.className;
-
-			// Show loading state
-			activateBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Activating...';
-			activateBtn.className = 'btn btn-activate activating w-100 mt-3';
-			activateBtn.disabled = true;
-
-			// Get assessment ID - updated to check multiple locations
-			var assessmentId = document.body.getAttribute('data-assessment-id') ||
-				(document.getElementById('hiddenAssessmentId') ? document.getElementById('hiddenAssessmentId').value : null) ||
-				(document.getElementById('assessment-id') ? document.getElementById('assessment-id').value : null);
-
-			if (!assessmentId) {
-				showErrorMessage('Please save the test first before activating.');
-				// Reset button state
-				setTimeout(function() {
-					activateBtn.innerHTML = originalContent;
-					activateBtn.className = originalClass;
-					activateBtn.disabled = false;
-				}, 2000);
-				return;
-			}
-
-			// Simulate API call with timeout
-			setTimeout(function() {
-				// Remove loading state
-				activateBtn.classList.remove('activating');
-
-				// Show success message
-				showSuccessMessage('Test activated successfully!');
-
-				// Redirect to Test Info page after a short delay
-				setTimeout(function() {
-					window.location.href = '/EducatorConfig/TestConfiguration/TestInfo?assessmentId=' + assessmentId;
-				}, 1500);
-
-			}, 2000); // Simulated 2 second API call
-		});
-	}
+    var activateBtn = document.querySelector('.btn-activate');
+    if (activateBtn) {
+        activateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Store original button content
+            var originalContent = activateBtn.innerHTML;
+            var originalClass = activateBtn.className;
+            
+            // Show loading state
+            activateBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Activating...';
+            activateBtn.className = 'btn btn-activate activating w-100 mt-3';
+            activateBtn.disabled = true;
+            
+            // Get assessment ID - updated to check multiple locations
+            var assessmentId = document.body.getAttribute('data-assessment-id') || 
+                             (document.getElementById('hiddenAssessmentId') ? document.getElementById('hiddenAssessmentId').value : null) ||
+                             (document.getElementById('assessment-id') ? document.getElementById('assessment-id').value : null);
+            
+            if (!assessmentId) {
+                showErrorMessage('Please save the test first before activating.');
+                // Reset button state
+                setTimeout(function() {
+                    activateBtn.innerHTML = originalContent;
+                    activateBtn.className = originalClass;
+                    activateBtn.disabled = false;
+                }, 2000);
+                return;
+            }
+            
+            // Simulate API call with timeout
+            setTimeout(function() {
+                // Remove loading state
+                activateBtn.classList.remove('activating');
+                
+                // Show success message
+                showSuccessMessage('Test activated successfully!');
+                
+                // Redirect to Test Info page after a short delay
+                setTimeout(function() {
+                    window.location.href = '/EducatorConfig/TestConfiguration/TestInfo?assessmentId=' + assessmentId;
+                }, 1500);
+                
+            }, 2000); // Simulated 2 second API call
+        });
+    }
 }
 
 function showSuccessMessage(message) {
-	console.log('Showing success message:', message);
-	var alertDiv = document.createElement('div');
-	alertDiv.className = 'alert alert-success alert-dismissible fade show';
-	alertDiv.style.position = 'fixed';
-	alertDiv.style.top = '20px';
-	alertDiv.style.right = '20px';
-	alertDiv.style.zIndex = '9999';
-	alertDiv.innerHTML = message +
-		'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-
-	document.body.appendChild(alertDiv);
-
-	// Auto-dismiss after 3 seconds
-	setTimeout(function() {
-		alertDiv.classList.remove('show');
-		setTimeout(function() { alertDiv.remove(); }, 150);
-	}, 3000);
+    console.log('Showing success message:', message);
+    var alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = message + 
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(function() {
+        alertDiv.classList.remove('show');
+        setTimeout(function() { alertDiv.remove(); }, 150);
+    }, 3000);
 }
 
 function showErrorMessage(message) {
-	console.log('Showing error message:', message);
-	var alertDiv = document.createElement('div');
-	alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-	alertDiv.style.position = 'fixed';
-	alertDiv.style.top = '20px';
-	alertDiv.style.right = '20px';
-	alertDiv.style.zIndex = '9999';
-	alertDiv.innerHTML = message +
-		'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-
-	document.body.appendChild(alertDiv);
-
-	// Auto-dismiss after 5 seconds
-	setTimeout(function() {
-		alertDiv.classList.remove('show');
-		setTimeout(function() { alertDiv.remove(); }, 150);
-	}, 5000);
+    console.log('Showing error message:', message);
+    var alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = message + 
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(function() {
+        alertDiv.classList.remove('show');
+        setTimeout(function() { alertDiv.remove(); }, 150);
+    }, 5000);
 }
 
 
@@ -353,47 +178,47 @@ function initializeTinyMCE() {
 
 // Initialize TinyMCE for all answer textareas
 function initializeAnswerEditors() {
-	// Remove any existing TinyMCE instances for answer fields first
-	document.querySelectorAll('.tinymce-answer').forEach(textarea => {
-		const editorId = textarea.id;
-		if (tinymce.get(editorId)) {
-			tinymce.remove('#' + editorId);
-		}
-	});
+    // Remove any existing TinyMCE instances for answer fields first
+    document.querySelectorAll('.tinymce-answer').forEach(textarea => {
+        const editorId = textarea.id;
+        if (tinymce.get(editorId)) {
+            tinymce.remove('#' + editorId);
+        }
+    });
 
-	// Initialize fresh instances for all answer textareas
-	document.querySelectorAll('.tinymce-answer').forEach(textarea => {
-		const textareaId = textarea.id;
-		const content = textarea.value;
-
-		tinymce.init({
-			selector: '#' + textareaId,
-			menubar: false,
-			toolbar_location: 'bottom',
-			inline: false,
-			min_height: 38,
-			max_height: 150,
-			statusbar: false,
-			resize: false,
-			plugins: [
-				'advlist', 'autolink', 'link', 'lists', 'charmap', 'preview',
-				'searchreplace', 'visualblocks', 'code', 'fullscreen',
-				'table', 'emoticons', 'specialchar', 'equationeditor'
-			],
-			toolbar: 'undo redo | bold italic underline strikethrough | ' +
-				'bullist numlist | link | ' +
-				'specialchar equationeditor emoticons',
-			content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#0f2830; margin: 5px 0; }',
-			setup: function(editor) {
-				editor.on('init', function() {
-					if (content) {
-						// Properly handle HTML content
-						editor.setContent(content);
-					}
-				});
-			}
-		});
-	});
+    // Initialize fresh instances for all answer textareas
+    document.querySelectorAll('.tinymce-answer').forEach(textarea => {
+        const textareaId = textarea.id;
+        const content = textarea.value;
+        
+        tinymce.init({
+            selector: '#' + textareaId,
+            menubar: false,
+            toolbar_location: 'bottom',
+            inline: false,
+            min_height: 38,
+            max_height: 150,
+            statusbar: false,
+            resize: false,
+            plugins: [
+                'advlist', 'autolink', 'link', 'lists', 'charmap', 'preview',
+                'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'table', 'emoticons', 'specialchar', 'equationeditor'
+            ],
+            toolbar: 'undo redo | bold italic underline strikethrough | ' +
+                'bullist numlist | link | ' +
+                'specialchar equationeditor emoticons',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#0f2830; margin: 5px 0; }',
+            setup: function(editor) {
+                editor.on('init', function() {
+                    if (content) {
+                        // Properly handle HTML content
+                        editor.setContent(content);
+                    }
+                });
+            }
+        });
+    });
 }
 
 // Remove the standalone initializeAnswerEditor function since we're handling everything in initializeAnswerEditors
@@ -533,86 +358,86 @@ function showAnswerContainer(answerType) {
 // Load existing question data if editing
 // Update loadExistingQuestionData function
 function loadExistingQuestionData() {
-	const urlParams = new URLSearchParams(window.location.search);
-	const questionId = urlParams.get('questionId');
-
-	if (questionId) {
-		console.log('Loading existing question data for ID:', questionId);
-		document.getElementById('question-id').value = questionId;
-
-		// Update page title to show question number
-		document.getElementById('question-title').innerHTML = `
+    const urlParams = new URLSearchParams(window.location.search);
+    const questionId = urlParams.get('questionId');
+    
+    if (questionId) {
+        console.log('Loading existing question data for ID:', questionId);
+        document.getElementById('question-id').value = questionId;
+        
+        // Update page title to show question number
+        document.getElementById('question-title').innerHTML = `
             Editing Question <span id="question-number">${questionId}</span>
             <span class="badge bg-warning text-dark ms-2">Edit Mode</span>
         `;
-
-		document.getElementById('save-add-next-btn').style.display = 'none';
-
-		fetch('/EducatorConfig/TestConfiguration/GetAllQuestions')
-			.then(response => response.json())
-			.then(data => {
-				if (data.success && data.questions) {
-					const questionToEdit = data.questions.find(q => q.questionId == questionId);
-					if (questionToEdit) {
-						populateQuestionForm(questionToEdit);
-
-						// Check assessment status
-						if (data.assessmentStatus && data.assessmentStatus !== 'draft') {
-							disableQuestionManagerEditing();
-						}
-					}
-				}
-			});
-	} else {
-		// New question - set number from session storage
-		fetch('/EducatorConfig/TestConfiguration/GetAllQuestions')
-			.then(response => response.json())
-			.then(data => {
-				let questionCount = 1;
-				if (data.success && data.questions) {
-					questionCount = data.questions.length + 1;
-					sessionStorage.setItem('questionCount', questionCount);
-
-					// Check assessment status
-					if (data.assessmentStatus && data.assessmentStatus !== 'draft') {
-						disableQuestionManagerEditing();
-					}
-				}
-				document.getElementById('question-number').textContent = questionCount;
-			});
-	}
+        
+        document.getElementById('save-add-next-btn').style.display = 'none';
+        
+        fetch('/EducatorConfig/TestConfiguration/GetAllQuestions')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.questions) {
+                    const questionToEdit = data.questions.find(q => q.questionId == questionId);
+                    if (questionToEdit) {
+                        populateQuestionForm(questionToEdit);
+                        
+                        // Check assessment status
+                        if (data.assessmentStatus && data.assessmentStatus !== 'draft') {
+                            disableQuestionManagerEditing();
+                        }
+                    }
+                }
+            });
+    } else {
+        // New question - set number from session storage
+        fetch('/EducatorConfig/TestConfiguration/GetAllQuestions')
+            .then(response => response.json())
+            .then(data => {
+                let questionCount = 1;
+                if (data.success && data.questions) {
+                    questionCount = data.questions.length + 1;
+                    sessionStorage.setItem('questionCount', questionCount);
+                    
+                    // Check assessment status
+                    if (data.assessmentStatus && data.assessmentStatus !== 'draft') {
+                        disableQuestionManagerEditing();
+                    }
+                }
+                document.getElementById('question-number').textContent = questionCount;
+            });
+    }
 }
 
 
 
 function disableQuestionManagerEditing() {
-	// Disable all buttons
-	['save-btn', 'save-add-next-btn', 'cancel-btn'].forEach(id => {
-		const btn = document.getElementById(id);
-		if (btn) {
-			btn.disabled = true;
-			btn.classList.add('disabled');
-		}
-	});
-
-	// Add warning message
-	const warningDiv = document.createElement('div');
-	warningDiv.className = 'alert alert-warning mb-4';
-	warningDiv.innerHTML = `
+    // Disable all buttons
+    ['save-btn', 'save-add-next-btn', 'cancel-btn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+        }
+    });
+    
+    // Add warning message
+    const warningDiv = document.createElement('div');
+    warningDiv.className = 'alert alert-warning mb-4';
+    warningDiv.innerHTML = `
         <i class="bi bi-exclamation-triangle me-2"></i>
         You cannot edit questions if you have already activated the test. 
         Duplicate the test on the "My tests" page to edit questions.
     `;
-
-	const cardBody = document.querySelector('.card-body');
-	if (cardBody) {
-		cardBody.insertBefore(warningDiv, cardBody.firstChild);
-	}
-
-	// Redirect after short delay
-	setTimeout(() => {
-		window.location.href = '/EducatorConfig/TestConfiguration/QuestionDashboard';
-	}, 3000);
+    
+    const cardBody = document.querySelector('.card-body');
+    if (cardBody) {
+        cardBody.insertBefore(warningDiv, cardBody.firstChild);
+    }
+    
+    // Redirect after short delay
+    setTimeout(() => {
+        window.location.href = '/EducatorConfig/TestConfiguration/QuestionDashboard';
+    }, 3000);
 }
 
 
@@ -754,17 +579,17 @@ function updateCharCount(editor) {
 // Populate single choice options
 // Update populateSingleChoiceOptions and populateMultipleChoiceOptions to use this helper
 function populateSingleChoiceOptions(options) {
-	const container = document.getElementById('single-choice-answers');
-	const addBtnContainer = container.querySelector('.add-answer-btn-container');
-	container.innerHTML = '';
-	if (addBtnContainer) {
-		container.appendChild(addBtnContainer);
-	}
-
-	options.forEach((option, index) => {
-		const textareaId = 'single-answer-' + (index + 1);
-		const optionText = option.optionText || '';
-		const template = `
+    const container = document.getElementById('single-choice-answers');
+    const addBtnContainer = container.querySelector('.add-answer-btn-container');
+    container.innerHTML = '';
+    if (addBtnContainer) {
+        container.appendChild(addBtnContainer);
+    }
+    
+    options.forEach((option, index) => {
+        const textareaId = 'single-answer-' + (index + 1);
+        const optionText = option.optionText || '';
+        const template = `
             <div class="answer-item mb-3" data-option-id="${option.optionId || ''}">
                 <div class="card">
                     <div class="card-body p-3">
@@ -788,33 +613,33 @@ function populateSingleChoiceOptions(options) {
                 </div>
             </div>
         `;
-
-		container.insertBefore(
-			createElementFromHTML(template),
-			container.querySelector('.add-answer-btn-container')
-		);
-	});
-
-	// Initialize editors after all options are added
-	setTimeout(() => {
-		initializeAnswerEditors();
-		setupAnswerDeleteButtons();
-	}, 100);
+        
+        container.insertBefore(
+            createElementFromHTML(template),
+            container.querySelector('.add-answer-btn-container')
+        );
+    });
+    
+    // Initialize editors after all options are added
+    setTimeout(() => {
+        initializeAnswerEditors();
+        setupAnswerDeleteButtons();
+    }, 100);
 }
 
 // Make the same change to populateMultipleChoiceOptions
 function populateMultipleChoiceOptions(options) {
-	const container = document.getElementById('multiple-choice-answers');
-	const addBtnContainer = container.querySelector('.add-answer-btn-container');
-	container.innerHTML = '';
-	if (addBtnContainer) {
-		container.appendChild(addBtnContainer);
-	}
-
-	options.forEach((option, index) => {
-		const textareaId = 'multi-answer-' + (index + 1);
-		const optionText = option.optionText || '';
-		const template = `
+    const container = document.getElementById('multiple-choice-answers');
+    const addBtnContainer = container.querySelector('.add-answer-btn-container');
+    container.innerHTML = '';
+    if (addBtnContainer) {
+        container.appendChild(addBtnContainer);
+    }
+    
+    options.forEach((option, index) => {
+        const textareaId = 'multi-answer-' + (index + 1);
+        const optionText = option.optionText || '';
+        const template = `
             <div class="answer-item mb-3" data-option-id="${option.optionId || ''}">
                 <div class="card">
                     <div class="card-body p-3">
@@ -838,18 +663,18 @@ function populateMultipleChoiceOptions(options) {
                 </div>
             </div>
         `;
-
-		container.insertBefore(
-			createElementFromHTML(template),
-			container.querySelector('.add-answer-btn-container')
-		);
-	});
-
-	// Initialize editors after all options are added
-	setTimeout(() => {
-		initializeAnswerEditors();
-		setupAnswerDeleteButtons();
-	}, 100);
+        
+        container.insertBefore(
+            createElementFromHTML(template),
+            container.querySelector('.add-answer-btn-container')
+        );
+    });
+    
+    // Initialize editors after all options are added
+    setTimeout(() => {
+        initializeAnswerEditors();
+        setupAnswerDeleteButtons();
+    }, 100);
 }
 
 
@@ -866,30 +691,30 @@ function populateTrueFalseOptions(options) {
 
 // Populate short answer options
 function populateShortAnswerOptions(options) {
-	const container = document.getElementById('short-answer-items');
-	const manualGradingToggle = document.getElementById('manually-grade-toggle');
+    const container = document.getElementById('short-answer-items');
+    const manualGradingToggle = document.getElementById('manually-grade-toggle');
+    
+    // Clear existing items and any manual grading message
+    container.innerHTML = '';
+    const existingMessage = document.querySelector('.manual-grading-message');
+    if (existingMessage) existingMessage.remove();
 
-	// Clear existing items and any manual grading message
-	container.innerHTML = '';
-	const existingMessage = document.querySelector('.manual-grading-message');
-	if (existingMessage) existingMessage.remove();
+    // Determine if manual grading is required
+    let requiresManualGrading = false;
+    if (options && options.length > 0) {
+        requiresManualGrading = options[0].requiresManualGrading || false;
+    }
 
-	// Determine if manual grading is required
-	let requiresManualGrading = false;
-	if (options && options.length > 0) {
-		requiresManualGrading = options[0].requiresManualGrading || false;
-	}
+    // Set the toggle state - this must happen before UI update
+    manualGradingToggle.checked = requiresManualGrading;
 
-	// Set the toggle state - this must happen before UI update
-	manualGradingToggle.checked = requiresManualGrading;
+    // Force immediate UI update
+    updateManualGradingUI(requiresManualGrading);
 
-	// Force immediate UI update
-	updateManualGradingUI(requiresManualGrading);
-
-	// Only populate answers if manual grading is disabled AND we have answers
-	if (!requiresManualGrading && options && options.length > 0 && options[0].answers) {
-		options[0].answers.forEach((answer, aIndex) => {
-			const template = `
+    // Only populate answers if manual grading is disabled AND we have answers
+    if (!requiresManualGrading && options && options.length > 0 && options[0].answers) {
+        options[0].answers.forEach((answer, aIndex) => {
+            const template = `
                 <div class="answer-item mb-3" data-option-id="${options[0].optionId || ''}" data-answer-id="${answer.answerId || ''}">
                     <div class="card">
                         <div class="card-body p-3">
@@ -916,78 +741,78 @@ function populateShortAnswerOptions(options) {
                     </div>
                 </div>
             `;
-			container.insertAdjacentHTML('beforeend', template);
-		});
-	}
+            container.insertAdjacentHTML('beforeend', template);
+        });
+    }
 
-	// If no answers were added and manual grading is off, add a default one
-	if (container.children.length === 0 && !requiresManualGrading) {
-		addShortAnswerItem();
-	}
+    // If no answers were added and manual grading is off, add a default one
+    if (container.children.length === 0 && !requiresManualGrading) {
+        addShortAnswerItem();
+    }
 
-	setupShortAnswerDeleteButtons();
+    setupShortAnswerDeleteButtons();
 }
 
 
 // Helper function to update manual grading UI
 function updateManualGradingUI(isEnabled) {
-	const shortAnswerItems = document.getElementById('short-answer-items');
-	const addAnswerBtn = document.querySelector('.add-short-answer-btn');
-	const settingsDiv = document.querySelector('.short-answer-settings');
+    const shortAnswerItems = document.getElementById('short-answer-items');
+    const addAnswerBtn = document.querySelector('.add-short-answer-btn');
+    const settingsDiv = document.querySelector('.short-answer-settings');
+    
+    // Remove any existing message first
+    const existingMessage = document.querySelector('.manual-grading-message');
+    if (existingMessage) existingMessage.remove();
 
-	// Remove any existing message first
-	const existingMessage = document.querySelector('.manual-grading-message');
-	if (existingMessage) existingMessage.remove();
-
-	if (isEnabled) {
-		// Manual grading is enabled
-		if (shortAnswerItems) {
-			shortAnswerItems.style.opacity = '0.6';
-			shortAnswerItems.querySelectorAll('input').forEach(input => {
-				input.disabled = true;
-			});
-
-			shortAnswerItems.querySelectorAll('.delete-short-answer').forEach(btn => {
-				btn.disabled = true;
-				btn.classList.add('text-muted');
-				btn.classList.remove('text-danger');
-			});
-		}
-
-		if (addAnswerBtn) {
-			addAnswerBtn.disabled = true;
-			addAnswerBtn.classList.add('btn-secondary');
-			addAnswerBtn.classList.remove('btn-primary');
-		}
-
-		// Add manual grading message
-		const messageDiv = document.createElement('div');
-		messageDiv.className = 'manual-grading-message alert alert-info mt-3';
-		messageDiv.innerHTML = '<i class="bi bi-info-circle me-2"></i>Manual grading enabled. Answer options are not required.';
-		if (settingsDiv) {
-			settingsDiv.insertAdjacentElement('afterend', messageDiv);
-		}
-	} else {
-		// Manual grading is disabled
-		if (shortAnswerItems) {
-			shortAnswerItems.style.opacity = '1';
-			shortAnswerItems.querySelectorAll('input').forEach(input => {
-				input.disabled = false;
-			});
-
-			shortAnswerItems.querySelectorAll('.delete-short-answer').forEach(btn => {
-				btn.disabled = false;
-				btn.classList.add('text-danger');
-				btn.classList.remove('text-muted');
-			});
-		}
-
-		if (addAnswerBtn) {
-			addAnswerBtn.disabled = false;
-			addAnswerBtn.classList.add('btn-primary');
-			addAnswerBtn.classList.remove('btn-secondary');
-		}
-	}
+    if (isEnabled) {
+        // Manual grading is enabled
+        if (shortAnswerItems) {
+            shortAnswerItems.style.opacity = '0.6';
+            shortAnswerItems.querySelectorAll('input').forEach(input => {
+                input.disabled = true;
+            });
+            
+            shortAnswerItems.querySelectorAll('.delete-short-answer').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('text-muted');
+                btn.classList.remove('text-danger');
+            });
+        }
+        
+        if (addAnswerBtn) {
+            addAnswerBtn.disabled = true;
+            addAnswerBtn.classList.add('btn-secondary');
+            addAnswerBtn.classList.remove('btn-primary');
+        }
+        
+        // Add manual grading message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'manual-grading-message alert alert-info mt-3';
+        messageDiv.innerHTML = '<i class="bi bi-info-circle me-2"></i>Manual grading enabled. Answer options are not required.';
+        if (settingsDiv) {
+            settingsDiv.insertAdjacentElement('afterend', messageDiv);
+        }
+    } else {
+        // Manual grading is disabled
+        if (shortAnswerItems) {
+            shortAnswerItems.style.opacity = '1';
+            shortAnswerItems.querySelectorAll('input').forEach(input => {
+                input.disabled = false;
+            });
+            
+            shortAnswerItems.querySelectorAll('.delete-short-answer').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.add('text-danger');
+                btn.classList.remove('text-muted');
+            });
+        }
+        
+        if (addAnswerBtn) {
+            addAnswerBtn.disabled = false;
+            addAnswerBtn.classList.add('btn-primary');
+            addAnswerBtn.classList.remove('btn-secondary');
+        }
+    }
 }
 
 // Helper function to create an element from HTML string
@@ -1207,21 +1032,21 @@ function setupAnswerDeleteButtons() {
 
 // Function to handle manual grading toggle behavior for short answers
 function setupManualGradingToggle() {
-	const manualGradingToggle = document.getElementById('manually-grade-toggle');
-
-	if (manualGradingToggle) {
-		manualGradingToggle.addEventListener('change', function() {
-			updateManualGradingUI(this.checked);
-
-			// If turning OFF manual grading and no answers exist, add one
-			if (!this.checked && document.getElementById('short-answer-items').children.length === 0) {
-				addShortAnswerItem();
-			}
-		});
-
-		// Initialize the UI based on current state
-		updateManualGradingUI(manualGradingToggle.checked);
-	}
+    const manualGradingToggle = document.getElementById('manually-grade-toggle');
+    
+    if (manualGradingToggle) {
+        manualGradingToggle.addEventListener('change', function() {
+            updateManualGradingUI(this.checked);
+            
+            // If turning OFF manual grading and no answers exist, add one
+            if (!this.checked && document.getElementById('short-answer-items').children.length === 0) {
+                addShortAnswerItem();
+            }
+        });
+        
+        // Initialize the UI based on current state
+        updateManualGradingUI(manualGradingToggle.checked);
+    }
 }
 
 

@@ -27,4 +27,51 @@ public class Answer {
     
     @Column(name = "points")
     private Integer points;
+
+	public Integer getAnswerId() {
+		return answerId;
+	}
+
+	public void setAnswerId(Integer answerId) {
+		this.answerId = answerId;
+	}
+
+	public QuestionOption getOption() {
+		return option;
+	}
+
+	public void setOption(QuestionOption option) {
+		this.option = option;
+	}
+
+	public String getCorrectAnswerText() {
+		return correctAnswerText;
+	}
+
+	public void setCorrectAnswerText(String correctAnswerText) {
+		this.correctAnswerText = correctAnswerText;
+	}
+
+	public Integer getPoints() {
+		return points;
+	}
+
+	public void setPoints(Integer points) {
+		this.points = points;
+	}
+
+	public Answer(Integer answerId, QuestionOption option, String correctAnswerText, Integer points) {
+		super();
+		this.answerId = answerId;
+		this.option = option;
+		this.correctAnswerText = correctAnswerText;
+		this.points = points;
+	}
+
+	public Answer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+	
 }

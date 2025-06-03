@@ -510,3 +510,17 @@ body {
         .progress-thin {
             height: 6px;
         }
+        
+        /* Ensure chart-container fills width and height properly */
+.chart-container {
+    position: relative;
+    width: 100%;
+    /* height removed for natural aspect ratio */
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: auto !important; /* Let Chart.js handle the aspect ratio */
+}
+
+        

@@ -162,5 +162,30 @@ public class Course {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	public Course(Integer courseId, String courseName, Integer courseCredits, String courseDescription, User instructor,
+			LocalDateTime courseStartDate, LocalDateTime courseEndDate, String courseStatus, LocalDateTime createdAt,
+			LocalDateTime updatedAt, List<Module> modules, List<CourseEnrollment> enrollments) {
+		super();
+		this.courseId = courseId;
+		this.courseName = courseName;
+		this.courseCredits = courseCredits;
+		this.courseDescription = courseDescription;
+		this.instructor = instructor;
+		this.courseStartDate = courseStartDate;
+		this.courseEndDate = courseEndDate;
+		this.courseStatus = courseStatus;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.modules = modules;
+		this.enrollments = enrollments;
+	}
+
+	public Course() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	
 	
 }

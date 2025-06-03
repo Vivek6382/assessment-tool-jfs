@@ -61,6 +61,19 @@ public class CourseEnrollment {
 	public void setEnrollmentDate(LocalDateTime enrollmentDate) {
 		this.enrollmentDate = enrollmentDate;
 	}
+
+	public CourseEnrollment(Integer enrollmentId, Course course, User student, LocalDateTime enrollmentDate) {
+		super();
+		this.enrollmentId = enrollmentId;
+		this.course = course;
+		this.student = student;
+		this.enrollmentDate = enrollmentDate;
+	}
+
+	public CourseEnrollment() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
     
     
 }

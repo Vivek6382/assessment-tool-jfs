@@ -275,6 +275,43 @@ public class User {
 	public void setUserProfessionalSummary(String userProfessionalSummary) {
 		this.userProfessionalSummary = userProfessionalSummary;
 	}
+
+	public User(Integer userId, String username, String userEmail, String userPasswordHash, String userFirstName,
+			String userLastName, String userMobileNumber, Role role, LocalDateTime userCreatedAt,
+			LocalDateTime userLastLogin, String userStatus, LocalDate userDob, String userGender, String userDepartment,
+			String userHighestQualification, String userSpecialization, String userProfessionalSummary,
+			List<Course> taughtCourses, List<Assessment> createdAssessments, List<Response> responses,
+			List<Result> results, List<Feedback> generatedFeedback, List<CourseEnrollment> enrollments) {
+		super();
+		this.userId = userId;
+		this.username = username;
+		this.userEmail = userEmail;
+		this.userPasswordHash = userPasswordHash;
+		this.userFirstName = userFirstName;
+		this.userLastName = userLastName;
+		this.userMobileNumber = userMobileNumber;
+		this.role = role;
+		this.userCreatedAt = userCreatedAt;
+		this.userLastLogin = userLastLogin;
+		this.userStatus = userStatus;
+		this.userDob = userDob;
+		this.userGender = userGender;
+		this.userDepartment = userDepartment;
+		this.userHighestQualification = userHighestQualification;
+		this.userSpecialization = userSpecialization;
+		this.userProfessionalSummary = userProfessionalSummary;
+		this.taughtCourses = taughtCourses;
+		this.createdAssessments = createdAssessments;
+		this.responses = responses;
+		this.results = results;
+		this.generatedFeedback = generatedFeedback;
+		this.enrollments = enrollments;
+	}
+
+	public User() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
     
     
 }

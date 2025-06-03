@@ -17,6 +17,13 @@ public class ResultController {
 
     @Autowired
     private ResultService resultService;
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<ResultDTO>> getAllResults() {
+        List<ResultDTO> results = resultService.getAllResults();
+        return ResponseEntity.ok(results);
+    }
+
 
     @GetMapping("/student/{studentId}/assessment/{assessmentId}")
     public ResponseEntity<ResultDTO> getResultByStudentAndAssessment(
@@ -72,4 +79,16 @@ public class ResultController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    @PostMapping
+    public ResponseEntity<ResultDTO> createResult(@RequestBody ResultDTO resultDTO) {
+        try {
+            ResultDTO createdResult = resultService.createResult(resultDTO);
+            return new ResponseEntity<>(createdResult, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

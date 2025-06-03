@@ -88,6 +88,44 @@ public class ResultService {
         
         return List.of();
     }
+    
+ // ✅ Create a new result
+    public ResultDTO createResult(ResultDTO dto) {
+        // Fetch associated Assessment and User (Student)
+        Assessment assessment = assessmentRepository.findById(dto.getAssessmentId())
+                .orElseThrow(() -> new RuntimeException("Assessment not found"));
+
+        User student = userRepository.findById(dto.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // Create new Result entity
+        Result result = new Result();
+        result.setAssessment(assessment);
+        result.setStudent(student);
+        result.setTotalMarks(dto.getTotalMarks());
+        result.setObtainedMarks(dto.getObtainedMarks());
+        result.setResultPercentage(dto.getResultPercentage());
+        result.setResultStatus(dto.getResultStatus());
+        result.setCompletedDate(dto.getCompletedDate());
+
+        // Save the Result
+        Result savedResult = resultRepository.save(result);
+
+        // Convert back to DTO
+        ResultDTO savedDTO = new ResultDTO();
+        savedDTO.setResultId(savedResult.getResultId());
+        savedDTO.setAssessmentId(assessment.getAssessmentId());
+        savedDTO.setAssessmentTitle(assessment.getAssessmentTitle());
+        savedDTO.setStudentId(student.getUserId());
+        savedDTO.setStudentName(student.getUserFirstName());
+        savedDTO.setTotalMarks(savedResult.getTotalMarks());
+        savedDTO.setObtainedMarks(savedResult.getObtainedMarks());
+        savedDTO.setResultPercentage(savedResult.getResultPercentage());
+        savedDTO.setResultStatus(savedResult.getResultStatus());
+        savedDTO.setCompletedDate(savedResult.getCompletedDate());
+
+        return savedDTO;
+    }
     /**
      * Convert Result entity to ResultDTO
      */
@@ -116,4 +154,14 @@ public class ResultService {
         
         return dto;
     }
+
+    /**
+     * Get all results (for all students and assessments)
+     */
+    public List<ResultDTO> getAllResults() {
+        return resultRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

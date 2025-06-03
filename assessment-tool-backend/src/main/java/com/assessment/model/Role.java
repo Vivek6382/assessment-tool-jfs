@@ -47,6 +47,18 @@ public class Role {
 	public void setUsers(List<User> users) {
 		this.users = users;
 	}
+
+	public Role(Integer roleId, String roleName, List<User> users) {
+		super();
+		this.roleId = roleId;
+		this.roleName = roleName;
+		this.users = users;
+	}
+
+	public Role() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
     
     
 }

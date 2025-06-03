@@ -43,5 +43,98 @@ public class Result {
     
     @OneToMany(mappedBy = "result")
     private List<Feedback> feedback;
+
+	public Integer getResultId() {
+		return resultId;
+	}
+
+	public void setResultId(Integer resultId) {
+		this.resultId = resultId;
+	}
+
+	public Assessment getAssessment() {
+		return assessment;
+	}
+
+	public void setAssessment(Assessment assessment) {
+		this.assessment = assessment;
+	}
+
+	public User getStudent() {
+		return student;
+	}
+
+	public void setStudent(User student) {
+		this.student = student;
+	}
+
+	public Integer getTotalMarks() {
+		return totalMarks;
+	}
+
+	public void setTotalMarks(Integer totalMarks) {
+		this.totalMarks = totalMarks;
+	}
+
+	public Integer getObtainedMarks() {
+		return obtainedMarks;
+	}
+
+	public void setObtainedMarks(Integer obtainedMarks) {
+		this.obtainedMarks = obtainedMarks;
+	}
+
+	public Float getResultPercentage() {
+		return resultPercentage;
+	}
+
+	public void setResultPercentage(Float resultPercentage) {
+		this.resultPercentage = resultPercentage;
+	}
+
+	public String getResultStatus() {
+		return resultStatus;
+	}
+
+	public void setResultStatus(String resultStatus) {
+		this.resultStatus = resultStatus;
+	}
+
+	public LocalDateTime getCompletedDate() {
+		return completedDate;
+	}
+
+	public void setCompletedDate(LocalDateTime completedDate) {
+		this.completedDate = completedDate;
+	}
+
+	public List<Feedback> getFeedback() {
+		return feedback;
+	}
+
+	public void setFeedback(List<Feedback> feedback) {
+		this.feedback = feedback;
+	}
+
+	public Result(Integer resultId, Assessment assessment, User student, Integer totalMarks, Integer obtainedMarks,
+			Float resultPercentage, String resultStatus, LocalDateTime completedDate, List<Feedback> feedback) {
+		super();
+		this.resultId = resultId;
+		this.assessment = assessment;
+		this.student = student;
+		this.totalMarks = totalMarks;
+		this.obtainedMarks = obtainedMarks;
+		this.resultPercentage = resultPercentage;
+		this.resultStatus = resultStatus;
+		this.completedDate = completedDate;
+		this.feedback = feedback;
+	}
+
+	public Result() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+    
     
 }

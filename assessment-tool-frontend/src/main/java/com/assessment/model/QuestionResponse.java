@@ -19,6 +19,78 @@ public class QuestionResponse {
     private List<String> selectedOptions;
     private Boolean isCorrect;
     private Integer marksObtained;
+	public Integer getQuestionId() {
+		return questionId;
+	}
+	public void setQuestionId(Integer questionId) {
+		this.questionId = questionId;
+	}
+	public String getQuestionText() {
+		return questionText;
+	}
+	public void setQuestionText(String questionText) {
+		this.questionText = questionText;
+	}
+	public String getQuestionType() {
+		return questionType;
+	}
+	public void setQuestionType(String questionType) {
+		this.questionType = questionType;
+	}
+	public Integer getQuestionMarks() {
+		return questionMarks;
+	}
+	public void setQuestionMarks(Integer questionMarks) {
+		this.questionMarks = questionMarks;
+	}
+	public List<QuestionOption> getOptions() {
+		return options;
+	}
+	public void setOptions(List<QuestionOption> options) {
+		this.options = options;
+	}
+	public String getStudentResponse() {
+		return studentResponse;
+	}
+	public void setStudentResponse(String studentResponse) {
+		this.studentResponse = studentResponse;
+	}
+	public List<String> getSelectedOptions() {
+		return selectedOptions;
+	}
+	public void setSelectedOptions(List<String> selectedOptions) {
+		this.selectedOptions = selectedOptions;
+	}
+	public Boolean getIsCorrect() {
+		return isCorrect;
+	}
+	public void setIsCorrect(Boolean isCorrect) {
+		this.isCorrect = isCorrect;
+	}
+	public Integer getMarksObtained() {
+		return marksObtained;
+	}
+	public void setMarksObtained(Integer marksObtained) {
+		this.marksObtained = marksObtained;
+	}
+	public QuestionResponse(Integer questionId, String questionText, String questionType, Integer questionMarks,
+			List<QuestionOption> options, String studentResponse, List<String> selectedOptions, Boolean isCorrect,
+			Integer marksObtained) {
+		super();
+		this.questionId = questionId;
+		this.questionText = questionText;
+		this.questionType = questionType;
+		this.questionMarks = questionMarks;
+		this.options = options;
+		this.studentResponse = studentResponse;
+		this.selectedOptions = selectedOptions;
+		this.isCorrect = isCorrect;
+		this.marksObtained = marksObtained;
+	}
+	public QuestionResponse() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
     
     
 } 

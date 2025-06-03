@@ -1,9 +1,11 @@
 package com.assessment.service;
 
+import com.assessment.dto.AssessmentDTO;
 import com.assessment.dto.CourseDTO;
 import com.assessment.dto.CoursesDTO;
 import com.assessment.dto.ModuleDTO;
 import com.assessment.exception.CourseServiceException;
+import com.assessment.model.Assessment;
 import com.assessment.model.Course;
 import com.assessment.model.User;
 import com.assessment.repository.CourseRepository;
@@ -104,36 +106,59 @@ public class CourseService {
 
 	        if (course.getModules() != null) {
 	            for (Module module : course.getModules()) {
+	                List<AssessmentDTO> assessmentDTOs = new ArrayList<>();
+
 	                if (module.getAssessments() != null) {
 	                    assessmentCount += module.getAssessments().size();
+
+	                    // Convert Assessment (Entity) to AssessmentDTO
+	                    for (Assessment assessment : module.getAssessments()) {
+	                        AssessmentDTO assessmentDTO = new AssessmentDTO(
+	                            assessment.getAssessmentId(),
+	                            assessment.getAssessmentTitle(),
+	                            assessment.getAssessmentDescription(),
+	                            assessment.getAssessmentType(),
+	                            assessment.getAssessmentDurationMinutes(),
+	                            assessment.getAssessmentPassingScore(),
+	                            assessment.getAssessmentTotalMarks(),
+	                            assessment.getAssessmentStatus(),
+	                            assessment.getStartDate(),
+	                            assessment.getEndDate()
+	                        );
+	                        assessmentDTOs.add(assessmentDTO);
+	                    }
 	                }
 
+	                // Create ModuleDTO with converted assessments
 	                ModuleDTO dto = new ModuleDTO(
-	                        module.getModuleId(),
-	                        module.getModuleName(),
-	                        module.getModuleStatus(),
-	                        module.getStartDate(),
-	                        module.getEndDate()
+	                    module.getModuleId(),
+	                    module.getModuleName(),
+	                    module.getModuleStatus(),
+	                    module.getStartDate(),
+	                    module.getEndDate(),
+	                    assessmentDTOs
 	                );
+
 	                moduleDTOs.add(dto);
 	            }
 	        }
 
 	        return new CourseDTO(
-	                course.getCourseId(),
-	                course.getCourseName(),
-	                course.getCourseDescription(),
-	                course.getCourseCredits(),
-	                course.getInstructor() != null ? course.getInstructor().getUserId() : null,
-	                course.getInstructor() != null ? course.getInstructor().getUserFirstName() : null,
-	                course.getCourseStartDate(),
-	                course.getCourseEndDate(),
-	                course.getCourseStatus(),
-	                course.getUpdatedAt(),
-	                moduleDTOs,
-	                assessmentCount
+	            course.getCourseId(),
+	            course.getCourseName(),
+	            course.getCourseDescription(),
+	            course.getCourseCredits(),
+	            course.getInstructor() != null ? course.getInstructor().getUserId() : null,
+	            course.getInstructor() != null ? course.getInstructor().getUserFirstName() : null,
+	            course.getCourseStartDate(),
+	            course.getCourseEndDate(),
+	            course.getCourseStatus(),
+	            course.getUpdatedAt(),
+	            moduleDTOs,
+	            assessmentCount
 	        );
 	    }
+
 
 	    
 	    
