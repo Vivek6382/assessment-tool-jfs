@@ -117,10 +117,6 @@ body {
     border-radius: 0.1875rem;
 }
 
-
-
-/* Batch-Design-Start */
-
 .setup-badge {
     color: var(--badge-color);
     border: 1px solid var(--badge-border);
@@ -128,35 +124,7 @@ body {
     font-weight: 600;
     padding: 0.3125rem 0.625rem;
     border-radius: 0.3125rem;
-    background-color: #f8f9fa; /* Default light background */
 }
-
-/* Status-specific styles */
-.setup-badge.draft {
-    color: #8772c1; /* Purple/mauve - existing badge color */
-    border-color: #9b89d06b; /* Existing border color */
-}
-
-.setup-badge.active {
-    color: #2e8540; /* Darker green for better readability */
-    border-color: #c3e6cb; /* Very light green border */
-    background-color: #e6f4ea; /* Very subtle green background */
-}
-
-.setup-badge.frozen {
-    color: #117a8b; /* Deeper ice blue */
-    border-color: #bee5eb; /* Light ice blue border */
-    background-color: #e8f6f8; /* Very subtle ice background */
-}
-
-.setup-badge.inactive {
-    color: #c7212f; /* Slightly softer red */
-    border-color: #f5c6cb; /* Light red border */
-    background-color: #fcefee; /* Very subtle red background */
-}
-
-
-/* Batch-Design-End */
 
 
 /* Add to your GradingSummary.css */
@@ -237,50 +205,27 @@ body {
 
 
 /* Progress bar styles - Start*/
+
 .progress-section {
     margin-top: 1rem;
     margin-bottom: 1.25rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem; /* Replace margin-right on span with gap */
 }
 
 .progress-section span {
-    font-weight: 500;
-    color: var(--text-color);
-    min-width: 6.5rem; /* Fixed width for percentage text */
-    font-size: 0.875rem;
+    margin-right: 0.75rem;
 }
 
 .progress-container {
     background-color: #dfe6ed;
-    height: 0.375rem; /* Slightly thicker bar */
-    border-radius: 0.25rem; /* Slightly more rounded */
-    flex-grow: 1; /* Take remaining space */
-    overflow: hidden; /* Ensure bar stays within container */
+    height: 0.1875rem;
+    border-radius: 0.125rem;
 }
 
 .progress-bar {
-    background-color: var(--primary-color); /* Default color */
-    height: 100%;
-    transition: width 0.5s ease, background-color 0.3s ease;
-}
-
-/* Progress color states */
-.progress-bar.low {
-    background-color: #ff6b6b; /* Red for <30% */
-}
-
-.progress-bar.medium {
-    background-color: #ffd166; /* Yellow for 30-79% */
-}
-
-.progress-bar.high {
-    background-color: #06d6a0; /* Teal for 80-99% */
-}
-
-.progress-bar.complete {
-    background-color: var(--primary-color); /* Your green for 100% */
+    background-color: var(--primary-color);
+    height: 0.1875rem;
 }
 
 /* Progress bar styles - End*/

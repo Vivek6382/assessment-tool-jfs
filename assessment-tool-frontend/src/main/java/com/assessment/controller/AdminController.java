@@ -2,8 +2,10 @@ package com.assessment.controller;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,69 +38,68 @@ public class AdminController {
 	@Autowired
     private AdminService adminService;
     
-    // Dashboard
-	@GetMapping("/AdminDashboard")
-	public String showAdminDashboard(Model model) {
-	    // Create metrics (unchanged)
-	    List<Map<String, String>> metrics = new ArrayList<>();
-	    
-	    Map<String, String> activeEducators = new HashMap<>();
-	    activeEducators.put("icon", "fas fa-chalkboard-teacher");
-	    activeEducators.put("value", "3");
-	    activeEducators.put("label", "Active Educators");
-	    activeEducators.put("bgColor", "bg-primary");
-	    metrics.add(activeEducators);
-	    
-	    Map<String, String> totalCourses = new HashMap<>();
-	    totalCourses.put("icon", "fas fa-book");
-	    totalCourses.put("value", "8");
-	    totalCourses.put("label", "Total Courses");
-	    totalCourses.put("bgColor", "bg-success");
-	    metrics.add(totalCourses);
-	    
-	    Map<String, String> totalAssessments = new HashMap<>();
-	    totalAssessments.put("icon", "fas fa-tasks");
-	    totalAssessments.put("value", "32");
-	    totalAssessments.put("label", "Total Assessments");
-	    totalAssessments.put("bgColor", "bg-warning");
-	    metrics.add(totalAssessments);
-	    
-	    Map<String, String> activeStudents = new HashMap<>();
-	    activeStudents.put("icon", "fas fa-users");
-	    activeStudents.put("value", "120");
-	    activeStudents.put("label", "Active Students");
-	    activeStudents.put("bgColor", "bg-info");
-	    metrics.add(activeStudents);
-	    
-	    model.addAttribute("metrics", metrics);
-	    
-	    // Prepare data for the grouped bar chart
-	    List<String> educatorNames = Arrays.asList("Vivek S", "Syed Anees", "Venkat Ramesh");
-	    
-	    // Define courses with their colors
-	    List<Map<String, Object>> courses = new ArrayList<>();
-	    
-	    // Mathematics courses
-	    courses.add(createCourseData("Mathematics Fundamentals", "#4361ee", Arrays.asList(85, 0, 0)));
-	    courses.add(createCourseData("Advanced Calculus", "#3a0ca3", Arrays.asList(65, 0, 0)));
-	    courses.add(createCourseData("Discrete Mathematics", "#4895ef", Arrays.asList(72, 0, 0)));
-	    
-	    // Physics courses
-	    courses.add(createCourseData("Advanced Physics", "#06d6a0", Arrays.asList(0, 85, 0)));
-	    courses.add(createCourseData("Quantum Mechanics", "#04a777", Arrays.asList(0, 62, 0)));
-	    
-	    // Chemistry courses
-	    courses.add(createCourseData("Chemistry Basics", "#ffd166", Arrays.asList(0, 0, 78)));
-	    courses.add(createCourseData("Organic Chemistry", "#ef476f", Arrays.asList(0, 0, 45)));
-	    courses.add(createCourseData("Physical Chemistry", "#d62839", Arrays.asList(0, 0, 58)));
-	    
-	    // Add all the data to the model
-	    model.addAttribute("educatorNames", educatorNames);
-	    model.addAttribute("courses", courses);
-	    
-	    return "Admin/AdminDashboard";
-	}
-
+	// Dashboard
+		@GetMapping("/AdminDashboard")
+		public String showAdminDashboard(Model model) { 
+			// Create metrics (unchanged)
+		    List<Map<String, String>> metrics = new ArrayList<>();
+		    
+		    Map<String, String> activeEducators = new HashMap<>();
+		    activeEducators.put("icon", "fas fa-chalkboard-teacher");
+		    activeEducators.put("value", "3");
+		    activeEducators.put("label", "Active Educators");
+		    activeEducators.put("bgColor", "bg-primary");
+		    metrics.add(activeEducators);
+		    
+		    Map<String, String> totalCourses = new HashMap<>();
+		    totalCourses.put("icon", "fas fa-book");
+		    totalCourses.put("value", "8");
+		    totalCourses.put("label", "Total Courses");
+		    totalCourses.put("bgColor", "bg-success");
+		    metrics.add(totalCourses);
+		    
+		    Map<String, String> totalAssessments = new HashMap<>();
+		    totalAssessments.put("icon", "fas fa-tasks");
+		    totalAssessments.put("value", "32");
+		    totalAssessments.put("label", "Total Assessments");
+		    totalAssessments.put("bgColor", "bg-warning");
+		    metrics.add(totalAssessments);
+		    
+		    Map<String, String> activeStudents = new HashMap<>();
+		    activeStudents.put("icon", "fas fa-users");
+		    activeStudents.put("value", "120");
+		    activeStudents.put("label", "Active Students");
+		    activeStudents.put("bgColor", "bg-info");
+		    metrics.add(activeStudents);
+		    
+		    model.addAttribute("metrics", metrics);
+		    
+		    // Prepare data for the grouped bar chart
+		    List<String> educatorNames = Arrays.asList("Vivek S", "Syed Anees", "Venkat Ramesh");
+		    
+		    // Define courses with their colors
+		    List<Map<String, Object>> courses = new ArrayList<>();
+		    
+		    // Mathematics courses
+		    courses.add(createCourseData("Mathematics Fundamentals", "#4361ee", Arrays.asList(85, 0, 0)));
+		    courses.add(createCourseData("Advanced Calculus", "#3a0ca3", Arrays.asList(65, 0, 0)));
+		    courses.add(createCourseData("Discrete Mathematics", "#4895ef", Arrays.asList(72, 0, 0)));
+		    
+		    // Physics courses
+		    courses.add(createCourseData("Advanced Physics", "#06d6a0", Arrays.asList(0, 85, 0)));
+		    courses.add(createCourseData("Quantum Mechanics", "#04a777", Arrays.asList(0, 62, 0)));
+		    
+		    // Chemistry courses
+		    courses.add(createCourseData("Chemistry Basics", "#ffd166", Arrays.asList(0, 0, 78)));
+		    courses.add(createCourseData("Organic Chemistry", "#ef476f", Arrays.asList(0, 0, 45)));
+		    courses.add(createCourseData("Physical Chemistry", "#d62839", Arrays.asList(0, 0, 58)));
+		    
+		    // Add all the data to the model
+		    model.addAttribute("educatorNames", educatorNames);
+		    model.addAttribute("courses", courses);
+		    return "Admin/AdminDashboard";
+		}
+		
 	private Map<String, Object> createCourseData(String title, String color, List<Integer> completionRates) {
 	    Map<String, Object> course = new HashMap<>();
 	    course.put("title", title);

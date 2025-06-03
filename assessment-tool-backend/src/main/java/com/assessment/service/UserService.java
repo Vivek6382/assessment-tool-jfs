@@ -1,9 +1,9 @@
 package com.assessment.service;
 
 import com.assessment.dto.UserDTO;
-import com.assessment.model.Role;
+//import com.assessment.model.Role;
 import com.assessment.model.User;
-import com.assessment.repository.RoleRepository;
+//import com.assessment.repository.RoleRepository;
 import com.assessment.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,8 +22,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private RoleRepository roleRepository;
+//    @Autowired
+//    private RoleRepository roleRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;

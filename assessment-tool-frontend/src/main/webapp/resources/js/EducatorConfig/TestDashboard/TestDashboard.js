@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     setupEventListeners();
     initializePagination();
-	
 });
 
 function initializeDashboard() {
@@ -12,8 +11,6 @@ function initializeDashboard() {
 }
 
 
-
-
 // In setupEventListeners function:
 function setupEventListeners() {
     // New test button
@@ -21,8 +18,8 @@ function setupEventListeners() {
     if (newTestBtn) {
         newTestBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Clear any existing session data by forcing a fresh load
-            window.location.href = "/EducatorConfig/TestConfiguration/BasicSettings?clearSession=true";
+            // Navigate without any assessmentId parameter
+            window.location.href = "/EducatorConfig/TestConfiguration/BasicSettings";
         });
     }
 

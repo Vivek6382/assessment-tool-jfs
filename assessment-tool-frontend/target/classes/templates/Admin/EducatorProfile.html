@@ -42,10 +42,6 @@
                     Ongoing Courses
                 </div>
                 <div class="sidebar-item">
-                    <i class="bi bi-graph-up"></i>
-                    Performance
-                </div>
-                <div class="sidebar-item">
                     <i class="bi bi-person"></i>
                     Profile
                 </div>
@@ -62,7 +58,7 @@
 				            <p class="mb-0" th:text="${course.courseDescription}">Introduction to AI and machine learning techniques.</p>
 			            </div>
 		                      
-		                <div class="course-dates d-flex">
+		                <div class="course-dates d-flex ms-auto">
 							<p class="mb-0">
 								<strong>Start Date:</strong>
 								<span th:text="${course.courseStartDate}">01 Jan 2024</span>
@@ -72,49 +68,6 @@
 								<span th:text="${course.courseEndDate}">01 Jun 2024</span>
 							</p>
 						</div>					    
-                    </div>
-                </section>
-
-                <!-- Performance Analysis Section -->
-                <section id="performanceAnalysis" class="mb-5">
-                    <h2 class="section-title">Performance Analysis</h2>
-                    <div class="performance-metrics">
-                        <div class="metric">
-                            <div class="metric-title">Total Students</div>
-                            <!-- <div class="metric-value" th:text="${educator.totalStudents}">120</div> -->
-                            <div class="small text-success"><i class="bi bi-arrow-up-short"></i> 12% from last month</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-title">Total Assessments</div>
-                            <!-- <div class="metric-value" th:text="${educator.totalAssessments}">45</div> -->
-                            <div class="small text-success"><i class="bi bi-arrow-up-short"></i> 5% from last month</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-title">Completion Rate</div>
-                            <!-- <div class="metric-value" th:text="${educator.completionRate}+'%'">85%</div> -->
-                            <div class="small text-success"><i class="bi bi-arrow-up-short"></i> 3% from last month</div>
-                        </div>
-                    </div>
-                    
-                    <div class="performance-charts">
-                        <div class="chart">
-                            <div class="line-chart">
-                                <!-- Corrected placeholder image path -->
-                                <!-- <img src="/api/placeholder/400/200" alt="Performance trend chart" class="img-fluid"> -->
-                            </div>
-                            <div class="chart-title">Monthly Performance Trend</div>
-                        </div>
-                        <div class="chart">
-                            <div class="circle-chart-container">
-                                <svg viewBox="0 0 200 200">
-                                    <circle class="circle-bg" cx="100" cy="100" r="75"></circle>
-                                    <!-- <circle class="circle" cx="100" cy="100" r="75" 
-                                        th:attr="stroke-dashoffset=${472 - (472 * educator.performanceScore / 100)}"></circle> -->
-                                </svg>
-                                <!-- <div class="percentage" th:text="${educator.performanceScore}+'%'">72%</div> -->
-                            </div>
-                            <div class="chart-title">Overall Performance Score</div>
-                        </div>
                     </div>
                 </section>
 

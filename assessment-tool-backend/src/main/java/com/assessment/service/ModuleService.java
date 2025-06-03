@@ -5,14 +5,14 @@ import com.assessment.dto.ModuleDTO;
 import com.assessment.dto.ModulesDTO;
 import com.assessment.exception.InvalidModuleDataException;
 import com.assessment.exception.ResourceNotFoundException;
-import com.assessment.model.Assessment;
+//import com.assessment.model.Assessment;
 import com.assessment.model.Module;
 import com.assessment.repository.ModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
