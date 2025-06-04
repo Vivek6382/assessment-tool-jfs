@@ -1,5 +1,3 @@
-# Assessment Ally – Online Assessment Tool and Management Platform
-
 # Assessment Tool – Online Assessment Management Platform
 
 ## Overview
