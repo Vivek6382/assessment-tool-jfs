@@ -1,7 +1,6 @@
 package com.assessment.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class AssessmentDTO {
     

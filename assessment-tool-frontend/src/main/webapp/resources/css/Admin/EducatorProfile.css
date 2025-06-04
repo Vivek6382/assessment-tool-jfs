@@ -110,7 +110,7 @@ main > section:first-child {
 
 .course-dates {
   gap: 80px;
-  flex-shrink: 0;
+  /* flex-shrink: 0; */
 }
 
 .course-card h4 {
@@ -156,102 +156,6 @@ main > section:first-child {
     margin-bottom: 25px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
-}
-
-.performance-metrics {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.metric {
-    text-align: center;
-    flex: 1;
-    min-width: 120px;
-    margin-bottom: 15px;
-    background-color: white;
-    padding: 20px 15px;
-    border-radius: 10px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--border-color);
-    transition: var(--hover-transition);
-}
-
-.metric:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
-}
-
-.metric-title {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.metric-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    line-height: 1;
-    margin-bottom: 5px;
-}
-
-.performance-charts {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 30px;
-}
-
-.chart {
-    flex: 1;
-    min-width: 200px;
-    text-align: center;
-}
-
-.chart-title {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-top: 15px;
-    font-weight: 500;
-}
-
-.circle-chart-container {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    margin: 0 auto;
-}
-
-.circle-bg {
-    fill: none;
-    stroke: rgba(67, 97, 238, 0.1);
-    stroke-width: 15;
-}
-
-.circle {
-    fill: none;
-    stroke: var(--primary-color);
-    stroke-width: 15;
-    stroke-linecap: round;
-    stroke-dasharray: 472;
-    stroke-dashoffset: 132; /* 472 - (472 * 72 / 100) */
-    transform: rotate(-90deg);
-    transform-origin: center;
-}
-
-.percentage {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
 }
 
 .profile-form {
@@ -405,33 +309,6 @@ main > section:first-child {
         display: block;
     }
 }
-
-@media (max-width: 767.98px) {
-    .performance-metrics {
-        flex-direction: column;
-    }
-    
-    .metric {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-    
-    .performance-charts {
-        flex-direction: column;
-    }
-    
-    .chart {
-        width: 100%;
-        margin: 15px 0;
-    }
-    
-    .circle-chart-container {
-        width: 150px;
-        height: 150px;
-    }
-}
-
-/* Add these to your existing CSS */
 
 /* Date input styling */
 .form-control[type="date"] {

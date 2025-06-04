@@ -4,7 +4,6 @@ import com.assessment.model.*;
 import com.assessment.model.Module;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

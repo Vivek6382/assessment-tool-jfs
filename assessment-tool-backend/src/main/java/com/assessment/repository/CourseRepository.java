@@ -1,9 +1,7 @@
 package com.assessment.repository;
 
-import com.assessment.dto.CourseDTO;
 import com.assessment.model.Course;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
