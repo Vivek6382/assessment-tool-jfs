@@ -26,11 +26,14 @@
 </head>
 
 
-<body th:attr="data-assessment-id=${session.currentAssessmentId}, data-assessment-status=${assessment?.assessmentStatus ?: 'draft'}">
+<body
+	th:attr="data-assessment-id=${session.currentAssessmentId}, data-assessment-status=${assessment?.assessmentStatus ?: 'draft'}">
 
-<!-- Add these hidden inputs as backups -->
-<input type="hidden" id="hiddenAssessmentId" th:value="${session.currentAssessmentId}">
-<input type="hidden" id="hiddenAssessmentStatus" th:value="${assessment?.assessmentStatus ?: 'draft'}">
+	<!-- Add these hidden inputs as backups -->
+	<input type="hidden" id="hiddenAssessmentId"
+		th:value="${session.currentAssessmentId}">
+	<input type="hidden" id="hiddenAssessmentStatus"
+		th:value="${assessment?.assessmentStatus ?: 'draft'}">
 
 	<!-- Header - Start -->
 	<div class="header d-flex align-items-center">
@@ -64,7 +67,7 @@
 			<!-- Sidebar - Start-->
 			<div class="col-md-3 col-lg-3 sidebar pt-3">
 				<div class="ps-3 pe-3">
-				<span class="setup-badge draft d-inline-block mb-3">SETUP IN
+					<span class="setup-badge draft d-inline-block mb-3">SETUP IN
 						PROGRESS</span>
 
 					<!-- Test configuration - Start-->
@@ -107,9 +110,9 @@
 
 
 
-                    <button class="btn btn-activate w-100 mt-3">
-                        <i class="bi bi-play-fill"></i> Activate test
-                    </button>
+					<button class="btn btn-activate w-100 mt-3">
+						<i class="bi bi-play-fill"></i> Activate test
+					</button>
 
 
 					<!-- Test configuration - End-->
@@ -162,10 +165,7 @@
 			<!-- Replace the entire Main Content section with this -->
 			<div class="col-md-9 col-lg-9 main-content">
 				<!-- Page Title -->
-				<div class="page-header mb-4">
-					<h5>Grading & Summary</h5>
-				</div>
-
+				<div class="section-header mb-4">Grading & Summary</div>
 
 				<!-- Grading Criteria Section -->
 				<!-- Replace the Grading Criteria Section with this: -->
