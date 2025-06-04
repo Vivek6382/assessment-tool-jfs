@@ -14,7 +14,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-
+	
+	
+    //before merge
     @Autowired
     private AdminService adminService;
     
