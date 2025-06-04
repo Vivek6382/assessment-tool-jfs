@@ -2,7 +2,6 @@ package com.assessment.service;
 
 import com.assessment.dto.AssessmentDTO;
 import com.assessment.model.Assessment;
-import com.assessment.model.Question;
 import com.assessment.repository.AssessmentRepository;
 import com.assessment.repository.QuestionRepository;
 import com.assessment.repository.QuestionTypeRepository;

@@ -1,7 +1,6 @@
 package com.assessment.service;
 
 import com.assessment.dto.UserDTO;
-import com.assessment.model.Role;
 import com.assessment.model.User;
 import com.assessment.repository.RoleRepository;
 import com.assessment.repository.UserRepository;
